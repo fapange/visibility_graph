@@ -24,6 +24,8 @@ void vgraph(double order);
 double vectorsAngle( double x, double y, double basex, double basey);
 double distance( Point * a, Point * b );
 
+Point * pointList[7];
+
 //-------------------------------------------------------------------------------
 //  Main procedure
 //-------------------------------------------------------------------------------
@@ -35,6 +37,7 @@ int main()
 	{
 		vgraph(order);
 	}
+
 
 /*	CImg<unsigned char> img(screen_size,screen_size,1,3,20);
 		CImgDisplay disp(img, "Visibility Graph");      // Display the modified image on the screen
@@ -61,8 +64,8 @@ void vgraph(double order)
 	// Line segments:	
 	int size = pow(4.0, order);
 	int row_col = sqrt(size);
-	//int seg = row_col * row_col;
-	int seg = 9; //Nusrat
+	int seg = row_col * row_col;
+//	int seg = 9; //Nusrat
 
 	// Coordinates:
 	double width = screen_size / row_col; // size of each grid box
@@ -76,7 +79,7 @@ void vgraph(double order)
 	int index = 0;
 	
 	// Now generate seg line segments
-/*	for(int x = 0; x < row_col; ++x)
+	for(int x = 0; x < row_col; ++x)
 	{
 		for(int y = 0; y < row_col; ++y)
 		{
@@ -106,7 +109,7 @@ void vgraph(double order)
 			index++;
 		}
 	}
-	*/
+
 	//cout << "SEGS " << seg << " INDEX " << index << endl;
 	
 	/*
@@ -124,7 +127,7 @@ void vgraph(double order)
 	*/
 
 	//Nusrat
-	segs[0] = new Line(40,140,240,40); // 0 first
+/*	segs[0] = new Line(40,140,240,40); // 0 first
 	segs[1] = new  Line(80,500,160,200); // 1 second
 	segs[2] = new   Line(80,500,100,300); // 2 third, later
 	segs[3] = new  Line(100,300,160,200) ;// 3 far righ
@@ -133,8 +136,8 @@ void vgraph(double order)
 	segs[6] = new   Line(560,200,480,150); // 2 third, later
 	segs[7] = new  Line(480,150,520,50) ;// 3 far righ
 	segs[8] = new  Line(520,50,400,100) ;// 3 far righ
-
-	index=4; //Nusrat
+*/
+	//index=4; //Nusrat
 	for(int i=0;i<index;i++){
 			segs[i]->print();
 
@@ -229,8 +232,8 @@ void vgraph(double order)
 				// Sort the verticies:		
 				angleList.add( l->a);
 
-   				//cout << "Added A for line " << i << " theta " << l->a->theta << endl;
-				//cout << "POINT "; l->a->print(); cout << endl;
+   		//		cout << "Added A for line " << i << " theta " << l->a->theta << endl;
+			//	cout << "POINT "; l->a->print(); cout << endl;
 			}
 
 			if( !(i == center_id && isPointA == false) ) // point is not line B
@@ -243,9 +246,9 @@ void vgraph(double order)
 
 				// Sort the verticies:		
 				angleList.add( l->b);
-				//cout << "Added B for line " << i << " theta " << l->b->theta << endl;
+			//	cout << "Added B for line " << i << " theta " << l->b->theta << endl;
 
-				//cout << "POINT "; l->b->print(); cout << endl;				
+				//cout << "POINT "; l->b->print(); cout << endl;
 			}
 						
 			//cout << endl;
@@ -255,8 +258,8 @@ void vgraph(double order)
 		//img.save("result.png"); // save the image		
 		//break;	
 		// Test SkipList
-		//cout << "Angle List - points ordered CC from base line";
-		//angleList.printAll();
+	//	cout << "Angle List - points ordered CC from base line";
+	//	angleList.printAll();
 
 
 		// Initialize Edge List Of Lines -----------------------------------------------------
@@ -361,7 +364,9 @@ void vgraph(double order)
 					//cout << "Drawing Line" << endl;
 
 					if(visual)
-						img.draw_line( center->x, center->y, p->x, p->y, BLUE );
+						img.draw_line( center->x, center->y, p->x, p->y, BLUE ); //Vis
+						center->addVisible(p);//Bidirectional visibility
+						p->addVisible(center);
 				}
 
 				// remove
@@ -388,12 +393,19 @@ void vgraph(double order)
 				{
 					//cout << "Drawing Line" << endl;
 					if(visual)
-						img.draw_line( center->x, center->y, p->x, p->y, BLUE );
+						img.draw_line( center->x, center->y, p->x, p->y, BLUE ); //Vis
+						center->addVisible(p);//Bidirectional visibility
+						p->addVisible(center);
 				}
 
 				if(visual)
 					img.draw_line(l->a->x, l->a->y, l->b->x, l->b->y, GREEN);
 			}
+
+			//Nusrat
+		//	cout << "Total atomic space " << seg << "," << total_atomic_space << endl;
+			//	cout << "Printing visibility";
+				center->printVisible();
 
 			if(visual)
 				img.draw_circle(p->x, p->y, 5, GREY);
@@ -432,7 +444,10 @@ void vgraph(double order)
 	
 			img.draw_line(l->a->x, l->a->y, l->b->x, l->b->y, WHITE);
 			img.draw_circle(l->a->x, l->a->y, 2, WHITE);
-			img.draw_circle(l->b->x, l->b->y, 2, WHITE);				
+			img.draw_circle(l->b->x, l->b->y, 2, WHITE);
+
+			l->a->addVisible(l->b); //Bidirectional visibility
+			l->b->addVisible(l->a);//Bidirectional visibility
 		}
 		disp.display(img);
 	
@@ -440,7 +455,7 @@ void vgraph(double order)
 		img.save("result.png"); // save the image
 	}
 
-	cout << seg << "," << total_atomic_space << endl;
+
 
 	if(visual)
 	{
@@ -451,6 +466,7 @@ void vgraph(double order)
 			disp.wait();
 		}
 	}
+
 
 	// Garabage collect
 	//delete [] segs;
