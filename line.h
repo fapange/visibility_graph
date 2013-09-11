@@ -5,6 +5,7 @@
 #include "point.h"
 #include "geometry.h"
 #include <cmath>
+#include <cstdlib>
 
 class Line: public Geometry
 {
@@ -22,7 +23,7 @@ class Line: public Geometry
 	double y_intercept; // y-intercept of line
 	
 	Line();
-	Line(int _x1, int _y1, int _x2, int _y2);
+	Line(double _x1, double _y1, double _x2, double _y2);
 	~Line();
 	virtual void print();
     virtual double value();

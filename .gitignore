@@ -1,3 +1,4 @@
 vgraph
 .DS_Store
 *.png
+/Debug

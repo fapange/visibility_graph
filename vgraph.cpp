@@ -21,7 +21,7 @@ const int screen_size = 800;
 //  Prototypes
 //-------------------------------------------------------------------------------
 void vgraph(double order);
-double vectorsAngle( int x, int y, int basex, int basey);
+double vectorsAngle( double x, double y, double basex, double basey);
 double distance( Point * a, Point * b );
 
 //-------------------------------------------------------------------------------
@@ -36,6 +36,10 @@ int main()
 		vgraph(order);
 	}
 
+/*	CImg<unsigned char> img(screen_size,screen_size,1,3,20);
+		CImgDisplay disp(img, "Visibility Graph");      // Display the modified image on the screen
+		img.save("result.jpg"); // save the image
+*/
 	return EXIT_SUCCESS;	
 }
 
@@ -55,9 +59,10 @@ void vgraph(double order)
 	CImgDisplay disp(img, "Visibility Graph");      // Display the modified image on the screen
 	
 	// Line segments:	
-	int size = pow(10.0, order);
+	int size = pow(4.0, order);
 	int row_col = sqrt(size);
-	int seg = row_col * row_col;
+	//int seg = row_col * row_col;
+	int seg = 9; //Nusrat
 
 	// Coordinates:
 	double width = screen_size / row_col; // size of each grid box
@@ -71,7 +76,7 @@ void vgraph(double order)
 	int index = 0;
 	
 	// Now generate seg line segments
-	for(int x = 0; x < row_col; ++x)
+/*	for(int x = 0; x < row_col; ++x)
 	{
 		for(int y = 0; y < row_col; ++y)
 		{
@@ -101,7 +106,7 @@ void vgraph(double order)
 			index++;
 		}
 	}
-	
+	*/
 	//cout << "SEGS " << seg << " INDEX " << index << endl;
 	
 	/*
@@ -117,6 +122,23 @@ void vgraph(double order)
 	  Line(200,450,300,450)  // 7
 	  };
 	*/
+
+	//Nusrat
+	segs[0] = new Line(40,140,240,40); // 0 first
+	segs[1] = new  Line(80,500,160,200); // 1 second
+	segs[2] = new   Line(80,500,100,300); // 2 third, later
+	segs[3] = new  Line(100,300,160,200) ;// 3 far righ
+	segs[4] = new Line(400,100,440,250); // 0 first
+	segs[5] = new  Line(440,250,560,200); // 1 second
+	segs[6] = new   Line(560,200,480,150); // 2 third, later
+	segs[7] = new  Line(480,150,520,50) ;// 3 far righ
+	segs[8] = new  Line(520,50,400,100) ;// 3 far righ
+
+	index=4; //Nusrat
+	for(int i=0;i<index;i++){
+			segs[i]->print();
+
+	}
 
 	// Reusable pointer locations
 	Line * l;
@@ -171,6 +193,8 @@ void vgraph(double order)
 		  cout << "B" << endl;
 		*/
 		
+
+
 		// Datastructures:
 		skiplist <Point*> angleList;		
 		skiplist <Line*> edgeList;	
@@ -198,7 +222,7 @@ void vgraph(double order)
 			{
 				if(visual)
 					img.draw_circle(l->a->x, l->a->y, 2, WHITE);
-
+					
 				// Calculate the angle from center line:
 				l->a->theta = vectorsAngle( l->a->x, l->a->y, center->x, center->y );
 
@@ -212,7 +236,7 @@ void vgraph(double order)
 			if( !(i == center_id && isPointA == false) ) // point is not line B
 			{
 				if(visual)
-					img.draw_circle(l->b->x, l->b->y, 2, WHITE);		
+					img.draw_circle(l->b->x, l->b->y, 2, WHITE);
 
 				// Calculate the angle from center line:
 				l->b->theta = vectorsAngle( l->b->x, l->b->y, center->x, center->y );
@@ -410,7 +434,7 @@ void vgraph(double order)
 			img.draw_circle(l->a->x, l->a->y, 2, WHITE);
 			img.draw_circle(l->b->x, l->b->y, 2, WHITE);				
 		}
-		disp.display(img);	
+		disp.display(img);
 	
 
 		img.save("result.png"); // save the image
@@ -436,7 +460,7 @@ void vgraph(double order)
 //-------------------------------------------------------------------------------
 //  Calculate Angle Btw 2 Vectors
 //-------------------------------------------------------------------------------
-double vectorsAngle( int x, int y, int basex, int basey)
+double vectorsAngle( double x, double y, double basex, double basey)
 {
 	// Convert input point x & y to be vectors relative to base point
 	double x2 = double(x - basex);

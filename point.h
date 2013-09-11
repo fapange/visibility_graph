@@ -7,14 +7,14 @@
 class Point: public Geometry
 {
  public:
-	int x;
-	int y;
+	double x;
+	double y;
 	void* parentLine;
 	int id; // for removing, comparing, etc
 	double theta; // anglular amount from base line
 	
 	Point();
-	Point(int _x1, int _y1);
+	Point(double _x1, double _y1);
 
 	virtual void print();
 	virtual double value();

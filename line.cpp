@@ -12,7 +12,7 @@ Line::Line()
 	cout << "You are calling the function wrong";
 	exit(0);
 }
-Line::Line(int x1, int y1, int x2, int y2)
+Line::Line(double x1, double y1, double x2, double y2)
 {
 	// Order a and b such that a.x > b.x
 	if( x1 > x2 )

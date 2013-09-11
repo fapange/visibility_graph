@@ -6,7 +6,7 @@ Point::Point()
 	static int id_counter = 0;
 	id = id_counter++;
 }
-Point::Point(int _x1, int _y1)
+Point::Point(double _x1, double _y1)
 {
 	x = _x1;
 	y = _y1;
