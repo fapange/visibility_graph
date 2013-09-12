@@ -6,6 +6,8 @@
 #include "skiplist.h"
 #include <cmath>
 #include <list>
+#include "Dijkstra.h"
+#include "PointHandler.h"
 
 using namespace cimg_library;
 using namespace std;
@@ -29,8 +31,8 @@ void initializeLineSegments(int row_col,Line *segs[]);
 void initializePoints(int row_col,Line *segs[],Point *pointList[]);
 void printVisibilityOfPoints(int numOfPoints,Point *pointList[]);
 Point * searchPoint(int numOfPoints,Point *pointList[],Point* p );
+void fileWrite(Point *a,Point *b);
 
-static int test=0;
 
 //-------------------------------------------------------------------------------
 //  Main procedure
@@ -84,6 +86,8 @@ void vgraph(double order)
 	// Reusable pointer locations
 	Line * l;
 	Point * p;
+	Point * start;
+	Point * goal;
 
 	int center_id;
 	bool isPointA;
@@ -303,8 +307,11 @@ void vgraph(double order)
 
 					if(visual){
 						img.draw_line( center->x, center->y, p->x, p->y, BLUE ); //Vis
-						searchPoint(numOfPoints,pointList,p)->addVisible(searchPoint(numOfPoints,pointList,center));
-						test++;
+						start=searchPoint(numOfPoints,pointList,p);
+						goal=searchPoint(numOfPoints,pointList,center);
+						start->addVisible(goal);
+						fileWrite(start,goal);
+
 					}
 
 				}
@@ -334,8 +341,10 @@ void vgraph(double order)
 					//cout << "Drawing Line" << endl;
 					if(visual){
 						img.draw_line( center->x, center->y, p->x, p->y, BLUE ); //Vis
-						test++;
-						searchPoint(numOfPoints,pointList,p)->addVisible(searchPoint(numOfPoints,pointList,center));
+						start=searchPoint(numOfPoints,pointList,p);
+						goal=searchPoint(numOfPoints,pointList,center);
+						start->addVisible(goal);
+						fileWrite(start,goal);
 					}
 
 				}
@@ -386,22 +395,51 @@ void vgraph(double order)
 			img.draw_circle(l->a->x, l->a->y, 2, WHITE);
 			img.draw_circle(l->b->x, l->b->y, 2, WHITE);
 
-			//l->a->addVisible(l->b); //Bidirectional visibility
-			//l->b->addVisible(l->a);//Bidirectional visibility
-			searchPoint(numOfPoints,pointList,l->a)->addVisible(searchPoint(numOfPoints,pointList,l->b));
-			test++;
+			start=searchPoint(numOfPoints,pointList,l->a);
+			goal=searchPoint(numOfPoints,pointList,l->b);
+			start->addVisible(goal);
+			fileWrite(start,goal);
 		}
 		disp.display(img);
 	
 
-		img.save("result.bmp"); // save the image
+		//img.save("result.bmp"); // save the image
 	}
 
 
+	printVisibilityOfPoints(seg*2,pointList);
+
+	//Calculating Shortest Path from source to destination
+	initiateDijkstra();
+	int *shortestPath = getShortestPath();
+	int i=0;
+	//Print the Shortest Path
+	 printf("The Shortest Path is ");
+	while(shortestPath[i]!=-1){
+		printf("%d ", shortestPath[i]);
+
+		if(shortestPath[i+1]!=-1){
+			start = getPointById(pointList,shortestPath[i]);
+			goal = getPointById(pointList,shortestPath[i+1]);
+			// Visualize:
+			if(visual){
+				img.draw_circle(start->x, start->y,8,GREEN);
+				img.draw_circle(goal->x, goal->y,8,GREEN);
+				img.draw_line(start->x, start->y, goal->x, goal->y, GREEN);
+
+			}
+		}
+		i++;
+	}
+
+	if(visual){
+	disp.display(img);
+	img.save("result.bmp"); // save the image
+	}
 
 	if(visual)
 	{
-		// Show window until user input:	
+		// Show window until user input:
 		while (!disp.is_closed()) {
 			if (disp.is_keyESC() )
 				break;
@@ -409,8 +447,6 @@ void vgraph(double order)
 		}
 	}
 
-	printVisibilityOfPoints(seg*2,pointList);
-	cout << "Test "<<test;
 
 	// Garabage collect
 	//delete [] segs;
@@ -447,13 +483,6 @@ double vectorsAngle( double x, double y, double basex, double basey)
 	//cout << "Result: " << result*180/M_PI << " degrees" << endl;
 
 	return result;
-}
-//-------------------------------------------------------------------------------
-//  Distance Btw 2 Points
-//-------------------------------------------------------------------------------
-double distance( Point * a, Point * b )
-{
-	return sqrt( pow(b->x - a->x, 2.0) + pow(b->y - a->y,2.0) );
 }
 
 void initializeLineSegments(int row_col,Line *segs[]){
@@ -509,35 +538,17 @@ void initializeLineSegments(int row_col,Line *segs[]){
 */
 
 }
-void initializePoints(int row_col,Line *segs[],Point *pointList[]){
 
-	int index=row_col*row_col; //Nusrat
-		for(int i=0;i<index;i++){
-				segs[i]->print();
-				pointList[2*i]=segs[i]->a;
-				pointList[2*i+1]=segs[i]->b;
 
-		}
+void fileWrite(Point *a,Point *b){
 
-		/*for(int i=0;i<index*2;i++){
-				pointList[i]->print();
-		}*/
-}
-void printVisibilityOfPoints(int numOfPoints,Point *pointList[]){
-
-	for(int i=0;i<numOfPoints;i++){
-		pointList[i]->print();
-		pointList[i]->printVisible();
-	}
-}
-
-Point * searchPoint(int numOfPoints,Point *pointList[],Point* p ){
-
-	for(int i=0;i<numOfPoints;i++){
-		if((pointList[i]->x == p->x) && (pointList[i]->y == p->y)){
-			return pointList[i];
-		}
-
-	}
-	return NULL;
+/*	double dist = distance(a,b);
+	FILE *fp;
+	fp=fopen("test.txt", "a");
+	fprintf(fp, "%d" , a->id);
+	fprintf(fp, " %d" , b->id);
+	fprintf(fp, " %f" , dist);
+	fprintf(fp, "\n");
+	fclose(fp);
+	*/
 }
