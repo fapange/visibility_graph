@@ -1,9 +1,11 @@
+//#define cimg_use_jpeg
 #include "CImg.h"// Include CImg library header.
 #include <iostream>
 #include "line.h"
 #include "point.h"
 #include "skiplist.h"
 #include <cmath>
+#include <list>
 
 using namespace cimg_library;
 using namespace std;
@@ -23,8 +25,12 @@ const int screen_size = 800;
 void vgraph(double order);
 double vectorsAngle( double x, double y, double basex, double basey);
 double distance( Point * a, Point * b );
+void initializeLineSegments(int row_col,Line *segs[]);
+void initializePoints(int row_col,Line *segs[],Point *pointList[]);
+void printVisibilityOfPoints(int numOfPoints,Point *pointList[]);
+Point * searchPoint(int numOfPoints,Point *pointList[],Point* p );
 
-Point * pointList[7];
+static int test=0;
 
 //-------------------------------------------------------------------------------
 //  Main procedure
@@ -33,16 +39,11 @@ int main()
 {
 	cout << endl << endl << "Visibility Graph by Dave Coleman -------------------- " << endl << endl;
 
-	for( double order = 1; order < 2; order += 0.5 )
+	//for( double order = 1; order < 2; order += 0.5 )
 	{
-		vgraph(order);
+		vgraph(1);
 	}
 
-
-/*	CImg<unsigned char> img(screen_size,screen_size,1,3,20);
-		CImgDisplay disp(img, "Visibility Graph");      // Display the modified image on the screen
-		img.save("result.jpg"); // save the image
-*/
 	return EXIT_SUCCESS;	
 }
 
@@ -62,86 +63,23 @@ void vgraph(double order)
 	CImgDisplay disp(img, "Visibility Graph");      // Display the modified image on the screen
 	
 	// Line segments:	
-	int size = pow(4.0, order);
+	int size = pow(10.0, order);
 	int row_col = sqrt(size);
 	int seg = row_col * row_col;
 //	int seg = 9; //Nusrat
 
-	// Coordinates:
-	double width = screen_size / row_col; // size of each grid box
-	double margin = 0.1 * width;  // padding inside each box
-	double top, bottom, left, right; // coordinates of box with padding
 	
 	// Generate space for SEG number of lines	
 	Line * segs[seg];
+	Point * pointList[seg*2];
 
 	// Track what index we are on
-	int index = 0;
 	
-	// Now generate seg line segments
-	for(int x = 0; x < row_col; ++x)
-	{
-		for(int y = 0; y < row_col; ++y)
-		{
-			top = y*width + margin;
-			bottom = (y+1)*width - margin;
-			left = x*width + margin;
-			right = (x+1)*width - margin;
-				
-			// Create line segment in box of size width*width
-			// x1, y1, x2, y2
-			switch( rand() % 4 )
-			{
-			case 0: // verticle line
-				segs[index] = new Line( left, top, left, bottom );
-				break;
-			case 1: // horizontal line
-				segs[index] = new Line( left, top, right, top );
-				break;				
-			case 2: // diagonal left to right
-				segs[index] = new Line( left, top, right, bottom );
-				break;				
-			case 3:
-				segs[index] = new Line( left, bottom, right, top );
-				break;
-			}
 
-			index++;
-		}
-	}
-
-	//cout << "SEGS " << seg << " INDEX " << index << endl;
+	initializeLineSegments(row_col,segs);
+	initializePoints(row_col,segs,pointList);
 	
-	/*
-	  Line segs[] =
-	  {  
-	  Line(280,300,330,120), // 0 first
-	  Line(450,150,280,330), // 1 second
-	  Line(400,150,401,190), // 2 third, later		   
-	  Line(400,400,450,200), // 3 far right
-	  Line(350,350,350,450), // 4
-	  Line(10,200,100,215),  // 5
-	  Line(50,50,50,100),    // 6
-	  Line(200,450,300,450)  // 7
-	  };
-	*/
-
-	//Nusrat
-/*	segs[0] = new Line(40,140,240,40); // 0 first
-	segs[1] = new  Line(80,500,160,200); // 1 second
-	segs[2] = new   Line(80,500,100,300); // 2 third, later
-	segs[3] = new  Line(100,300,160,200) ;// 3 far righ
-	segs[4] = new Line(400,100,440,250); // 0 first
-	segs[5] = new  Line(440,250,560,200); // 1 second
-	segs[6] = new   Line(560,200,480,150); // 2 third, later
-	segs[7] = new  Line(480,150,520,50) ;// 3 far righ
-	segs[8] = new  Line(520,50,400,100) ;// 3 far righ
-*/
-	//index=4; //Nusrat
-	for(int i=0;i<index;i++){
-			segs[i]->print();
-
-	}
+	int numOfPoints=seg*2;
 
 	// Reusable pointer locations
 	Line * l;
@@ -363,10 +301,12 @@ void vgraph(double order)
 				{
 					//cout << "Drawing Line" << endl;
 
-					if(visual)
+					if(visual){
 						img.draw_line( center->x, center->y, p->x, p->y, BLUE ); //Vis
-						center->addVisible(p);//Bidirectional visibility
-						p->addVisible(center);
+						searchPoint(numOfPoints,pointList,p)->addVisible(searchPoint(numOfPoints,pointList,center));
+						test++;
+					}
+
 				}
 
 				// remove
@@ -392,10 +332,12 @@ void vgraph(double order)
 				if( edgeList.isRoot( l->id ) )
 				{
 					//cout << "Drawing Line" << endl;
-					if(visual)
+					if(visual){
 						img.draw_line( center->x, center->y, p->x, p->y, BLUE ); //Vis
-						center->addVisible(p);//Bidirectional visibility
-						p->addVisible(center);
+						test++;
+						searchPoint(numOfPoints,pointList,p)->addVisible(searchPoint(numOfPoints,pointList,center));
+					}
+
 				}
 
 				if(visual)
@@ -404,8 +346,6 @@ void vgraph(double order)
 
 			//Nusrat
 		//	cout << "Total atomic space " << seg << "," << total_atomic_space << endl;
-			//	cout << "Printing visibility";
-				center->printVisible();
 
 			if(visual)
 				img.draw_circle(p->x, p->y, 5, GREY);
@@ -446,13 +386,15 @@ void vgraph(double order)
 			img.draw_circle(l->a->x, l->a->y, 2, WHITE);
 			img.draw_circle(l->b->x, l->b->y, 2, WHITE);
 
-			l->a->addVisible(l->b); //Bidirectional visibility
-			l->b->addVisible(l->a);//Bidirectional visibility
+			//l->a->addVisible(l->b); //Bidirectional visibility
+			//l->b->addVisible(l->a);//Bidirectional visibility
+			searchPoint(numOfPoints,pointList,l->a)->addVisible(searchPoint(numOfPoints,pointList,l->b));
+			test++;
 		}
 		disp.display(img);
 	
 
-		img.save("result.png"); // save the image
+		img.save("result.bmp"); // save the image
 	}
 
 
@@ -467,6 +409,8 @@ void vgraph(double order)
 		}
 	}
 
+	printVisibilityOfPoints(seg*2,pointList);
+	cout << "Test "<<test;
 
 	// Garabage collect
 	//delete [] segs;
@@ -510,4 +454,90 @@ double vectorsAngle( double x, double y, double basex, double basey)
 double distance( Point * a, Point * b )
 {
 	return sqrt( pow(b->x - a->x, 2.0) + pow(b->y - a->y,2.0) );
+}
+
+void initializeLineSegments(int row_col,Line *segs[]){
+
+	int index = 0;
+	// Coordinates:
+	double width = screen_size / row_col; // size of each grid box
+	double margin = 0.1 * width;  // padding inside each box
+	double top, bottom, left, right; // coordinates of box with padding
+	// Now generate seg line segments
+	for(int x = 0; x < row_col; ++x)
+	{
+		for(int y = 0; y < row_col; ++y)
+		{
+			top = y*width + margin;
+			bottom = (y+1)*width - margin;
+			left = x*width + margin;
+			right = (x+1)*width - margin;
+
+			// Create line segment in box of size width*width
+			// x1, y1, x2, y2
+			switch( rand() % 4 )
+			{
+			case 0: // verticle line
+				segs[index] = new Line( left, top, left, bottom );
+				break;
+			case 1: // horizontal line
+				segs[index] = new Line( left, top, right, top );
+				break;
+			case 2: // diagonal left to right
+				segs[index] = new Line( left, top, right, bottom );
+				break;
+			case 3:
+				segs[index] = new Line( left, bottom, right, top );
+				break;
+			}
+
+			index++;
+		}
+	}
+
+
+		//Nusrat
+/*		segs[0] = new Line(40,140,240,40); // 0 first
+		segs[1] = new  Line(80,500,160,200); // 1 second
+		segs[2] = new   Line(80,500,100,300); // 2 third, later
+		segs[3] = new  Line(100,300,160,200) ;// 3 far righ
+		segs[4] = new Line(400,100,440,250); // 0 first
+		segs[5] = new  Line(440,250,560,200); // 1 second
+		segs[6] = new   Line(560,200,480,150); // 2 third, later
+		segs[7] = new  Line(480,150,520,50) ;// 3 far righ
+		segs[8] = new  Line(520,50,400,100) ;// 3 far righ
+*/
+
+}
+void initializePoints(int row_col,Line *segs[],Point *pointList[]){
+
+	int index=row_col*row_col; //Nusrat
+		for(int i=0;i<index;i++){
+				segs[i]->print();
+				pointList[2*i]=segs[i]->a;
+				pointList[2*i+1]=segs[i]->b;
+
+		}
+
+		/*for(int i=0;i<index*2;i++){
+				pointList[i]->print();
+		}*/
+}
+void printVisibilityOfPoints(int numOfPoints,Point *pointList[]){
+
+	for(int i=0;i<numOfPoints;i++){
+		pointList[i]->print();
+		pointList[i]->printVisible();
+	}
+}
+
+Point * searchPoint(int numOfPoints,Point *pointList[],Point* p ){
+
+	for(int i=0;i<numOfPoints;i++){
+		if((pointList[i]->x == p->x) && (pointList[i]->y == p->y)){
+			return pointList[i];
+		}
+
+	}
+	return NULL;
 }

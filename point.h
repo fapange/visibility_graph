@@ -12,12 +12,17 @@ class Point: public Geometry
 	void* parentLine;
 	int id; // for removing, comparing, etc
 	double theta; // anglular amount from base line
+	int index;
 	
 	Point();
 	Point(double _x1, double _y1);
 
 	virtual void print();
 	virtual double value();
+	virtual void addVisible(Point *p);
+	virtual void printVisible();
+
+	Point * visible[100];
 };
 
 #endif
