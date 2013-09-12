@@ -20,6 +20,8 @@ const unsigned char GREEN[] = { 0, 255, 0 };
 const unsigned char BLUE[] = { 0, 0, 255};
 const int screen_size = 800;
 //const int screen_size = 400;
+int numOfEdges=0;
+
 
 //-------------------------------------------------------------------------------
 //  Prototypes
@@ -310,7 +312,9 @@ void vgraph(double order)
 						start=searchPoint(numOfPoints,pointList,p);
 						goal=searchPoint(numOfPoints,pointList,center);
 						start->addVisible(goal);
+						//Write in the file which will be read by Dijkstra Algorithm
 						fileWrite(start,goal);
+						numOfEdges++;
 
 					}
 
@@ -344,7 +348,9 @@ void vgraph(double order)
 						start=searchPoint(numOfPoints,pointList,p);
 						goal=searchPoint(numOfPoints,pointList,center);
 						start->addVisible(goal);
+						//Write in the file which will be read by Dijkstra Algorithm
 						fileWrite(start,goal);
+						numOfEdges++;
 					}
 
 				}
@@ -398,7 +404,9 @@ void vgraph(double order)
 			start=searchPoint(numOfPoints,pointList,l->a);
 			goal=searchPoint(numOfPoints,pointList,l->b);
 			start->addVisible(goal);
+			//Write in the file which will be read by Dijkstra Algorithm
 			fileWrite(start,goal);
+			numOfEdges++;
 		}
 		disp.display(img);
 	
@@ -410,7 +418,7 @@ void vgraph(double order)
 	printVisibilityOfPoints(seg*2,pointList);
 
 	//Calculating Shortest Path from source to destination
-	initiateDijkstra();
+	initiateDijkstra(numOfPoints,numOfEdges,false,2,13);
 	int *shortestPath = getShortestPath();
 	int i=0;
 	//Print the Shortest Path
@@ -446,6 +454,7 @@ void vgraph(double order)
 			disp.wait();
 		}
 	}
+	printf("\nTotal No of edges %d",numOfEdges);
 
 
 	// Garabage collect
@@ -542,7 +551,7 @@ void initializeLineSegments(int row_col,Line *segs[]){
 
 void fileWrite(Point *a,Point *b){
 
-/*	double dist = distance(a,b);
+	double dist = distance(a,b);
 	FILE *fp;
 	fp=fopen("test.txt", "a");
 	fprintf(fp, "%d" , a->id);
@@ -550,5 +559,5 @@ void fileWrite(Point *a,Point *b){
 	fprintf(fp, " %f" , dist);
 	fprintf(fp, "\n");
 	fclose(fp);
-	*/
+
 }
