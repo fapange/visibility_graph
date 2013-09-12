@@ -418,7 +418,7 @@ void vgraph(double order)
 	printVisibilityOfPoints(seg*2,pointList);
 
 	//Calculating Shortest Path from source to destination
-	initiateDijkstra(numOfPoints,numOfEdges,false,2,13);
+	initiateDijkstra(numOfPoints,numOfEdges,false,0,8);
 	int *shortestPath = getShortestPath();
 	int i=0;
 	//Print the Shortest Path
@@ -437,6 +437,17 @@ void vgraph(double order)
 
 			}
 		}
+		else
+			if(visual){
+				goal= getPointById(pointList,shortestPath[i]);
+				img.draw_text(goal->x, goal->y+3,"Dest",GREEN);
+			}
+
+		if(i==0){
+			if(visual)
+				img.draw_text(start->x, start->y+3,"Source",GREEN);
+		}
+
 		i++;
 	}
 
