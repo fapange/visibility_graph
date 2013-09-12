@@ -1,8 +1,19 @@
-Visibility Graph
-A O(n^2 log n) implementation of constructing a visibility graph
+This Project calculates the Shortest Path in Presence of Obstacle .
+At first The Visibility Graph is calculated using Lee's O(n^2 log n) Algorithm
+Then Dijkstra's algorithm is applied in the graph .
+The result is : Shortest Path from a given source to destination and it is shown in an image . 
 
-by Dave Coleman <davetcoleman@gmail.com>
-A project for Advanced Algorithms at CU Boulder
+Reference :
+-> Visibility Graph : A O(n^2 log n) implementation of constructing a visibility graph by Dave Coleman 
+					  https://github.com/davetcoleman/visibility_graph
+
+->Dijkstra Algorithm : Implementation by dziaduZLasu 
+					   https://github.com/dziaduZLasu/dijkstra
+
+
+
+by Nusrat Sultana <nusratst.cse@gmail.com>
+A project as part of my Master's Thesis
 
 -------------
 
