@@ -24,6 +24,7 @@ const unsigned char BLUE[] = { 0, 0, 255};
 const int screen_size = 800;
 //const int screen_size = 400;
 int numOfEdges=0;
+float scale=1.0;   // Scale the Lines , let the maximum coordinate is 9000 then scale = 9000/screen_size
 
 
 //-------------------------------------------------------------------------------
@@ -50,8 +51,9 @@ int main()
 
 	//for( double order = 1; order < 2; order += 0.5 )
 	{
-		vgraph(1);
+		vgraph(1.5);
 	}
+
 
 	return EXIT_SUCCESS;	
 }
@@ -71,406 +73,409 @@ void vgraph(double order)
 	CImg<unsigned char> img(screen_size,screen_size,1,3,20);
 	CImgDisplay disp(img, "Obstacle Shortest Path Using Visibility Graph");      // Display the modified image on the screen
 	
-	// Line segments:	
-	int size = pow(10.0, order);
-	int row_col = sqrt(size);
-	int seg = row_col * row_col;
-	seg +=2;//Extra two for source and dest
-//	int seg = 2500; //Nusrat
-	int numOfPoints=seg*2;
-
-	
-	// Generate space for SEG number of lines	
-	Line * segs[seg];
-	Point * pointList[numOfPoints];
-
-	// Track what index we are on
-	
-
-	int idx = initializeLineSegments(row_col,segs);
-//	initializeSourceAndDest(idx,segs,5.0,250.0,760.0,700.0);
-	initializeSourceAndDest(idx,segs,5.0,250.0,312.6 , 700.40);
-	initializePoints(seg,segs,pointList);
+	// Line segments:
+		int size = pow(10.0, order);
+		int row_col = sqrt(size);
+		int seg = row_col * row_col;
+	//	int seg = 1000; //Nusrat
+		seg +=2;//Extra two for source and dest
+		int numOfPoints=seg*2;
 
 
-	// Reusable pointer locations
-	Line * l;
-	Point * p;
-	Point * start;
-	Point * goal;
+		// Generate space for SEG number of lines
+		Line * segs[seg];
+		Point * pointList[numOfPoints];
 
-	int center_id;
-	bool isPointA;
-		
-	// Visit each vertex once and perform the visibility algorithm
-   	for(int outer = 0; outer < numOfPoints; ++outer)
-	{
-		++atomic;
-		atomic_space = 0;
-		
-		// First or second number on each line?
-		center_id = outer / 2;
-
-		// Garbage Collect
-		if( outer )
-		{
-			delete center;
-			delete center_line;
-		}
-		
-		//cout << "LINE ID: " << center_id << endl;
-		if( ! (outer % 2) ) // is even
-		{
-			center = new Point( segs[center_id]->a->x, segs[center_id]->a->y );
-			isPointA = true;
-		}
-		else // is even
-		{
-			center = new Point( segs[center_id]->b->x, segs[center_id]->b->y );
-			isPointA = false;
-		}
-
-		// Center Line Calc:
-		center_line = new Line( center->x, center->y, center->x+1, center->y );			
-
-		// Add pointers to all points back to parent line
-		center->parentLine = segs[center_id];
-		
-		// Draw sweeper:
-		//img.draw_line( center->x, center->y, center->x+200, center->y, RED);
-		//if(visual) Nusrat
-			//img.draw_circle( center->x, center->y, 6, RED);
-
-		/*cout << "LINE ID " << center_id << " ";
-		  if(isPointA)
-		  cout << "A" << endl;
-		  else 
-		  cout << "B" << endl;
-		*/
-		
+		// Track what index we are on
 
 
-		// Datastructures:
-		skiplist <Point*> angleList;		
-		skiplist <Line*> edgeList;	
+		int idx = initializeLineSegments(row_col,segs);
+		initializeSourceAndDest(idx,segs,5.0,250.0,760.0,700.0);
+	//	initializeSourceAndDest(idx,segs,5.0,250.0,312.6 , 700.40);
+	//	initializeSourceAndDest(idx,segs,5.0,250.0,600.6 , 400.40); //Problem
+		//initializeSourceAndDest(idx,segs,5.0,250.0, 600, 250); //Problem
+		initializePoints(seg,segs,pointList);
 
-		// Algorithm -----------------------------------------------------------------
-	
-		// Draw segments and insert POINTS into skiplist ordered by ANGLE -------------
-		for(int i = 0; i < seg; ++i)
+
+		// Reusable pointer locations
+		Line * l;
+		Point * p;
+		Point * start;
+		Point * goal;
+
+		int center_id;
+		bool isPointA;
+
+		// Visit each vertex once and perform the visibility algorithm
+	   	for(int outer = 0; outer < numOfPoints; ++outer)
 		{
 			++atomic;
-			l = segs[i];
+			atomic_space = 0;
+
+			// First or second number on each line?
+			center_id = outer / 2;
+
+			// Garbage Collect
+			if( outer )
+			{
+				delete center;
+				delete center_line;
+			}
+
+			//cout << "LINE ID: " << center_id << endl;
+			if( ! (outer % 2) ) // is even
+			{
+				center = new Point( segs[center_id]->a->x, segs[center_id]->a->y );
+				isPointA = true;
+			}
+			else // is even
+			{
+				center = new Point( segs[center_id]->b->x, segs[center_id]->b->y );
+				isPointA = false;
+			}
+
+			// Center Line Calc:
+			center_line = new Line( center->x, center->y, center->x+1, center->y );
 
 			// Add pointers to all points back to parent line
-			l->a->parentLine = l;
-			l->b->parentLine = l;
+			center->parentLine = segs[center_id];
 
-			// Reset visited flags
-			l->visited = false;
-			l->visitedStartPoint = false;
+			// Draw sweeper:
+			//img.draw_line( center->x, center->y, center->x+200, center->y, RED);
+			//if(visual) Nusrat
+				//img.draw_circle( center->x, center->y, 6, RED);
 
-			if(visual)
-				img.draw_line(l->a->x, l->a->y, l->b->x, l->b->y, WHITE);
+			/*cout << "LINE ID " << center_id << " ";
+			  if(isPointA)
+			  cout << "A" << endl;
+			  else
+			  cout << "B" << endl;
+			*/
 
-			if( !(i == center_id && isPointA) ) // point is not line A
+
+
+			// Datastructures:
+			skiplist <Point*> angleList;
+			skiplist <Line*> edgeList;
+
+			// Algorithm -----------------------------------------------------------------
+
+			// Draw segments and insert POINTS into skiplist ordered by ANGLE -------------
+			for(int i = 0; i < seg; ++i)
 			{
+				++atomic;
+				l = segs[i];
+
+				// Add pointers to all points back to parent line
+				l->a->parentLine = l;
+				l->b->parentLine = l;
+
+				// Reset visited flags
+				l->visited = false;
+				l->visitedStartPoint = false;
+
 				if(visual)
-					img.draw_circle(l->a->x, l->a->y, 2, WHITE);
-					
-				// Calculate the angle from center line:
-				l->a->theta = vectorsAngle( l->a->x, l->a->y, center->x, center->y );
+					img.draw_line(l->a->x*scale, l->a->y*scale, l->b->x*scale, l->b->y*scale, WHITE);
 
-				// Sort the verticies:		
-				angleList.add( l->a);
-
-   		//		cout << "Added A for line " << i << " theta " << l->a->theta << endl;
-			//	cout << "POINT "; l->a->print(); cout << endl;
-			}
-
-			if( !(i == center_id && isPointA == false) ) // point is not line B
-			{
-				if(visual)
-					img.draw_circle(l->b->x, l->b->y, 2, WHITE);
-
-				// Calculate the angle from center line:
-				l->b->theta = vectorsAngle( l->b->x, l->b->y, center->x, center->y );
-
-				// Sort the verticies:		
-				angleList.add( l->b);
-			//	cout << "Added B for line " << i << " theta " << l->b->theta << endl;
-
-				//cout << "POINT "; l->b->print(); cout << endl;
-			}
-						
-			//cout << endl;
-		}
-		
-		//disp.display(img);
-		//img.save("result.png"); // save the image		
-		//break;	
-		// Test SkipList
-	//	cout << "Angle List - points ordered CC from base line";
-	//	angleList.printAll();
-
-
-		// Initialize Edge List Of Lines -----------------------------------------------------
-		for(int i = 0; i < seg; ++i)
-		{
-			++atomic;
-			
-			l = segs[i]; // get next line to check
-
-			// check if the current line is connected to the center point
-			if( l->id == ((Line*)center->parentLine)->id )
-			{
-				// one center's line
-				//cout << "ONE CENTER'S LINE!!!" << endl;
-			}
-			else
-			{
-				// Check each line and see if it crosses scan line
-				double xi, yi;
-				l->center_intercept( xi, yi ); // these are reference parameters
-
-				// Now we know that xi,yi is on center line.
-				// Next we check if X is between a & b. We know a.x > b.x, thus:
-				if( l->a->x >= xi && l->b->x <= xi )
+				if( !(i == center_id && isPointA) ) // point is not line A
 				{
-					// check that xi > center->x
-					if( xi >= center->x )
+					if(visual)
+						img.draw_circle(l->a->x*scale, l->a->y*scale, 2, WHITE);
+
+					// Calculate the angle from center line:
+					l->a->theta = vectorsAngle( l->a->x, l->a->y, center->x, center->y );
+
+					// Sort the verticies:
+					angleList.add( l->a);
+
+	   		//		cout << "Added A for line " << i << " theta " << l->a->theta << endl;
+				//	cout << "POINT "; l->a->print(); cout << endl;
+				}
+
+				if( !(i == center_id && isPointA == false) ) // point is not line B
+				{
+					if(visual)
+						img.draw_circle(l->b->x*scale, l->b->y*scale, 2, WHITE);
+
+					// Calculate the angle from center line:
+					l->b->theta = vectorsAngle( l->b->x, l->b->y, center->x, center->y );
+
+					// Sort the verticies:
+					angleList.add( l->b);
+				//	cout << "Added B for line " << i << " theta " << l->b->theta << endl;
+
+					//cout << "POINT "; l->b->print(); cout << endl;
+				}
+
+				//cout << endl;
+			}
+
+			//disp.display(img);
+			//img.save("result.png"); // save the image
+			//break;
+			// Test SkipList
+		//	cout << "Angle List - points ordered CC from base line";
+		//	angleList.printAll();
+
+
+			// Initialize Edge List Of Lines -----------------------------------------------------
+			for(int i = 0; i < seg; ++i)
+			{
+				++atomic;
+
+				l = segs[i]; // get next line to check
+
+				// check if the current line is connected to the center point
+				if( l->id == ((Line*)center->parentLine)->id )
+				{
+					// one center's line
+					//cout << "ONE CENTER'S LINE!!!" << endl;
+				}
+				else
+				{
+					// Check each line and see if it crosses scan line
+					double xi, yi;
+					l->center_intercept( xi, yi ); // these are reference parameters
+
+					// Now we know that xi,yi is on center line.
+					// Next we check if X is between a & b. We know a.x > b.x, thus:
+					if( l->a->x >= xi && l->b->x <= xi )
 					{
-				
-						// It does intersect
-						edgeList.add( l );
+						// check that xi > center->x
+						if( xi >= center->x )
+						{
 
-						// Mark as opened, somewhere on line
-						l->visited = true;
-			
-						// Visualize:
-						if(visual)
-							img.draw_line(l->a->x, l->a->y, l->b->x, l->b->y, GREEN);
+							// It does intersect
+							edgeList.add( l );
+
+							// Mark as opened, somewhere on line
+							l->visited = true;
+
+							// Visualize:
+							if(visual)
+								img.draw_line(l->a->x*scale, l->a->y*scale, l->b->x*scale, l->b->y*scale, GREEN);
+						}
 					}
 				}
 			}
-		}
 
-		if(live)
-			disp.display(img);
-   		
-		//cout << "Edge List:";
-		//edgeList.printAll();
+			if(live)
+				disp.display(img);
 
-   		// Sweep --------------------------------------------------------------
-		
-		//sleep(1);
-		//usleep(500*1000);
-   		for(int i = 0; i < 2*seg - 1; ++i)
-		{
-			++atomic;
-			// get max atomic space
-			if( total_atomic_space < atomic_space )
-				total_atomic_space = atomic_space;
-		
-			
-			//cout << "\n\n\n --------------- STARTING NEW SWEEP ------------------ \n\n\n";
-			
-			//cout << "SWEEP VERTEX " << i << endl;
-			//if( i > 0 )
-			//	break;
-			
-			// take the first vertex in angular order
-			p = angleList.pop();
-			//cout << "Sweep at "; p->print();
-
-			// Update the center_line to the sweep location and update m,b 
-			center_line->b = p;
-			center_line->updateCalcs();
-			
-			// Update center point to contain theta between baseline and
-			// current point, so that our line function can cache
-			center->theta = p->theta;
-		
-			// decide what to do with it
-			l = (Line*)p->parentLine; // cast it
-			//cout << "\t"; l->print();
-
-			// check if the current line is connected to the center point
-			if( l->id == ((Line*)center->parentLine)->id )
-			{
-				// one center's line
-				// ignore
-			}
-			else if( l->visited  ) // remove it from edgeList
-			{
-				//cout << "remove" << endl;
-
-				if( ! l->visitedStartPoint )
-				{
-					l->visited = false; // allow this line to be visisted again for its start point
-				}
-			
-				// check if its first in the edge list. if it is, its VISIBLE
-				if( edgeList.isRoot( l->id ) )
-				{
-					//cout << "Drawing Line" << endl;
-
-					if(visual){
-						img.draw_line( center->x, center->y, p->x, p->y, BLUE ); //Vis
-						start=searchPoint(numOfPoints,pointList,p);
-						goal=searchPoint(numOfPoints,pointList,center);
-						start->addVisible(goal);
-						//Write in the file which will be read by Dijkstra Algorithm
-						fileWrite(start,goal);
-						numOfEdges++;
-
-					}
-
-				}
-
-				// remove
-				//cout << "Value: " << l->value() << " " << l->id << endl;
-			
-				edgeList.remove( l->value(), l->id );
-
-				if(visual)
-					img.draw_line(l->a->x, l->a->y, l->b->x, l->b->y, WHITE);
-			}
-			else // add it to edge list
-			{
-				//cout << "add" << endl;			
-				l->visited = true; // mark it as having been visited somewhere
-				l->visitedStartPoint = true; // mark it as having found the first vertex
-			
-				// Store distance of line from center 
-				l->dist = distance( p, center );
-			
-				edgeList.add( l );
-
-				// check if its first in the edge list. if it is, its VISIBLE
-				if( edgeList.isRoot( l->id ) )
-				{
-					//cout << "Drawing Line" << endl;
-					if(visual){
-						img.draw_line( center->x, center->y, p->x, p->y, BLUE ); //Vis
-						start=searchPoint(numOfPoints,pointList,p);
-						goal=searchPoint(numOfPoints,pointList,center);
-						start->addVisible(goal);
-						//Write in the file which will be read by Dijkstra Algorithm
-						fileWrite(start,goal);
-						numOfEdges++;
-					}
-
-				}
-
-				if(visual)
-					img.draw_line(l->a->x, l->a->y, l->b->x, l->b->y, GREEN);
-			}
-
-			//Nusrat
-		//	cout << "Total atomic space " << seg << "," << total_atomic_space << endl;
-
-			if(visual)
-				img.draw_circle(p->x, p->y, 5, GREY);
-
-			//debug
 			//cout << "Edge List:";
 			//edgeList.printAll();
-			//angleList.printAll();
-			//cout << endl << endl;
-		
-			if(live)
+
+	   		// Sweep --------------------------------------------------------------
+
+			//sleep(1);
+			//usleep(500*1000);
+	   		for(int i = 0; i < 2*seg - 1; ++i)
 			{
-				disp.display(img);
-				//usleep(1*1000);
-				//sleep(1);
-			}
-		}
-		//cout << "breaking" << endl;
-		//break;
-		if(live)
-		{
-			//usleep(1*1000);
-			disp.display(img);
-		}
+				++atomic;
+				// get max atomic space
+				if( total_atomic_space < atomic_space )
+					total_atomic_space = atomic_space;
 
-		//img.fill(20);
-		//cout << outer << endl;
-	}
 
-	if(visual)
-	{
-		// Redraw obstacle lines just for fun:
-		for(int i = 0; i < seg; ++i)
-		{
-			l = segs[i];
-	
-			img.draw_line(l->a->x, l->a->y, l->b->x, l->b->y, WHITE);
-			img.draw_circle(l->a->x, l->a->y, 2, WHITE);
-			img.draw_circle(l->b->x, l->b->y, 2, WHITE);
+				//cout << "\n\n\n --------------- STARTING NEW SWEEP ------------------ \n\n\n";
 
-			start=searchPoint(numOfPoints,pointList,l->a);
-			goal=searchPoint(numOfPoints,pointList,l->b);
-			start->addVisible(goal);
-			//Write in the file which will be read by Dijkstra Algorithm
-			fileWrite(start,goal);
-			numOfEdges++;
-		}
+				//cout << "SWEEP VERTEX " << i << endl;
+				//if( i > 0 )
+				//	break;
 
-		//Draw Points
-			for(int i=0;i<numOfPoints;i++){
-				char result[100];   // array to hold the result.
+				// take the first vertex in angular order
+				p = angleList.pop();
+				//cout << "Sweep at "; p->print();
 
-				itoa(pointList[i]->id,result,10); //itoa(int num,char * buffer,10)
+				// Update the center_line to the sweep location and update m,b
+				center_line->b = p;
+				center_line->updateCalcs();
+
+				// Update center point to contain theta between baseline and
+				// current point, so that our line function can cache
+				center->theta = p->theta;
+
+				// decide what to do with it
+				l = (Line*)p->parentLine; // cast it
+				//cout << "\t"; l->print();
+
+				// check if the current line is connected to the center point
+				if( l->id == ((Line*)center->parentLine)->id )
+				{
+					// one center's line
+					// ignore
+				}
+				else if( l->visited  ) // remove it from edgeList
+				{
+					//cout << "remove" << endl;
+
+					if( ! l->visitedStartPoint )
+					{
+						l->visited = false; // allow this line to be visisted again for its start point
+					}
+
+					// check if its first in the edge list. if it is, its VISIBLE
+					if( edgeList.isRoot( l->id ) )
+					{
+						//cout << "Drawing Line" << endl;
+
+						if(visual){
+							img.draw_line( center->x*scale, center->y*scale, p->x*scale, p->y*scale, BLUE ); //Vis
+							start=searchPoint(numOfPoints,pointList,p);
+							goal=searchPoint(numOfPoints,pointList,center);
+							start->addVisible(goal);
+							//Write in the file which will be read by Dijkstra Algorithm
+							fileWrite(start,goal);
+							numOfEdges++;
+
+						}
+
+					}
+
+					// remove
+					//cout << "Value: " << l->value() << " " << l->id << endl;
+
+					edgeList.remove( l->value(), l->id );
+
+					if(visual)
+						img.draw_line(l->a->x*scale, l->a->y*scale, l->b->x*scale, l->b->y*scale, WHITE);
+				}
+				else // add it to edge list
+				{
+					//cout << "add" << endl;
+					l->visited = true; // mark it as having been visited somewhere
+					l->visitedStartPoint = true; // mark it as having found the first vertex
+
+					// Store distance of line from center
+					l->dist = distance( p, center );
+
+					edgeList.add( l );
+
+					// check if its first in the edge list. if it is, its VISIBLE
+					if( edgeList.isRoot( l->id ) )
+					{
+						//cout << "Drawing Line" << endl;
+						if(visual){
+							img.draw_line( center->x*scale, center->y*scale, p->x*scale, p->y*scale, BLUE ); //Vis
+							start=searchPoint(numOfPoints,pointList,p);
+							goal=searchPoint(numOfPoints,pointList,center);
+							start->addVisible(goal);
+							//Write in the file which will be read by Dijkstra Algorithm
+							fileWrite(start,goal);
+							numOfEdges++;
+						}
+
+					}
+
+					if(visual)
+						img.draw_line(l->a->x*scale, l->a->y*scale, l->b->x*scale, l->b->y*scale, GREEN);
+				}
+
+				//Nusrat
+			//	cout << "Total atomic space " << seg << "," << total_atomic_space << endl;
 
 				if(visual)
-					img.draw_text(pointList[i]->x-2, pointList[i]->y+7,result,WHITE);
+					img.draw_circle(p->x*scale, p->y*scale, 5, GREY);
 
+				//debug
+				//cout << "Edge List:";
+				//edgeList.printAll();
+				//angleList.printAll();
+				//cout << endl << endl;
+
+				if(live)
+				{
+					disp.display(img);
+					//usleep(1*1000);
+					//sleep(1);
+				}
+			}
+			//cout << "breaking" << endl;
+			//break;
+			if(live)
+			{
+				//usleep(1*1000);
+				disp.display(img);
 			}
 
-		disp.display(img);
-	
-
-		//img.save("result.bmp"); // save the image
-	}
-
-
-	printVisibilityOfPoints(seg*2,pointList);
-
-	//Calculating Shortest Path from source to destination
-	//initiateDijkstra(numOfPoints,numOfEdges,false,0,17);
-	initiateDijkstra(numOfPoints,numOfEdges,false,numOfPoints-3,numOfPoints-1);
-	int *shortestPath = getShortestPath();
-	int i=0;
-	//Print the Shortest Path
-	 printf("The Shortest Path is ");
-	while(shortestPath[i]!=-1){
-		printf("%d ", shortestPath[i]);
-
-		if(shortestPath[i+1]!=-1){
-			start = getPointById(pointList,shortestPath[i]);
-			goal = getPointById(pointList,shortestPath[i+1]);
-			// Visualize:
-			if(visual){
-				img.draw_circle(start->x, start->y,5,GREEN);
-				img.draw_circle(goal->x, goal->y,5,GREEN);
-				img.draw_line(start->x, start->y, goal->x, goal->y, GREEN);
-
-			}
-		}
-		else
-			if(visual){
-				goal= getPointById(pointList,shortestPath[i]);
-				img.draw_text(goal->x-5, goal->y+15,"Dest",GREEN);
-			}
-
-		if(i==0){
-			if(visual)
-				img.draw_text(start->x-5, start->y+15,"Source",GREEN);
+			//img.fill(20);
+			//cout << outer << endl;
 		}
 
-		i++;
-	}
+		if(visual)
+		{
+			// Redraw obstacle lines just for fun:
+			for(int i = 0; i < seg; ++i)
+			{
+				l = segs[i];
+
+				img.draw_line(l->a->x*scale, l->a->y*scale, l->b->x*scale, l->b->y*scale, WHITE);
+				img.draw_circle(l->a->x*scale, l->a->y*scale, 2, WHITE);
+				img.draw_circle(l->b->x*scale, l->b->y*scale, 2, WHITE);
+
+				start=searchPoint(numOfPoints,pointList,l->a);
+				goal=searchPoint(numOfPoints,pointList,l->b);
+				start->addVisible(goal);
+				//Write in the file which will be read by Dijkstra Algorithm
+				fileWrite(start,goal);
+				numOfEdges++;
+			}
+
+			//Draw Points
+				for(int i=0;i<numOfPoints;i++){
+					char result[100];   // array to hold the result.
+
+					itoa(pointList[i]->id,result,10); //itoa(int num,char * buffer,10)
+
+					if(visual)
+						img.draw_text((pointList[i]->x-2)*scale, (pointList[i]->y+7)*scale,result,WHITE);
+
+				}
+
+			disp.display(img);
+
+
+			//img.save("result.bmp"); // save the image
+		}
+
+
+		printVisibilityOfPoints(seg*2,pointList);
+
+		//Calculating Shortest Path from source to destination
+		//initiateDijkstra(numOfPoints,numOfEdges,false,0,17);
+		initiateDijkstra(numOfPoints,numOfEdges,false,numOfPoints-3,numOfPoints-1);
+		int *shortestPath = getShortestPath();
+		int i=0;
+		//Print the Shortest Path
+		 printf("The Shortest Path is ");
+		while(shortestPath[i]!=-1){
+			printf("%d ", shortestPath[i]);
+
+			if(shortestPath[i+1]!=-1){
+				start = getPointById(pointList,shortestPath[i]);
+				goal = getPointById(pointList,shortestPath[i+1]);
+				// Visualize:
+				if(visual){
+					img.draw_circle(start->x*scale, start->y*scale,5,GREEN);
+					img.draw_circle(goal->x*scale, goal->y*scale,5,GREEN);
+					img.draw_line(start->x*scale, start->y*scale, goal->x*scale, goal->y*scale, GREEN);
+
+				}
+			}
+			else
+				if(visual){
+					goal= getPointById(pointList,shortestPath[i]);
+					img.draw_text((goal->x-5)*scale, (goal->y+15)*scale,"Dest",GREEN);
+				}
+
+			if(i==0){
+				if(visual)
+					img.draw_text((start->x-5)*scale, (start->y+15)*scale,"Source",GREEN);
+			}
+
+			i++;
+		}
+
 
 	if(visual){
 	disp.display(img);
@@ -487,6 +492,7 @@ void vgraph(double order)
 		}
 	}
 	printf("\nTotal No of edges %d",numOfEdges);
+
 
 
 	// Garabage collect
@@ -578,7 +584,7 @@ int initializeLineSegments(int row_col,Line *segs[]){
 		segs[8] = new  Line(520,50,400,100) ;// 3 far righ
 		*/
 
-//	getLines(segs);
+//	index = getLines(segs);
 
 	return index;
 
@@ -607,7 +613,7 @@ void fileWrite(Point *a,Point *b){
 
 int getLines(Line *segs[]){
 
-	FILE *input = fopen("input.txt", "r+");
+	FILE *input = fopen("input2.txt", "r+");
 	double x1,y1,x2,y2;
 	int i=0;
 	while(!feof(input)){
