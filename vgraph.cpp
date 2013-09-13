@@ -1,6 +1,9 @@
 //#define cimg_use_jpeg
 #include "CImg.h"// Include CImg library header.
 #include <iostream>
+#include <string>
+#include <cstring>
+#include <sstream>
 #include "line.h"
 #include "point.h"
 #include "skiplist.h"
@@ -33,15 +36,16 @@ void initializeLineSegments(int row_col,Line *segs[]);
 void initializePoints(int row_col,Line *segs[],Point *pointList[]);
 void printVisibilityOfPoints(int numOfPoints,Point *pointList[]);
 Point * searchPoint(int numOfPoints,Point *pointList[],Point* p );
+void fileClear();
 void fileWrite(Point *a,Point *b);
-
-
+int getLines(Line *segs[]);
 //-------------------------------------------------------------------------------
 //  Main procedure
 //-------------------------------------------------------------------------------
 int main()
 {
-	cout << endl << endl << "Visibility Graph by Dave Coleman -------------------- " << endl << endl;
+	cout << endl << endl << "Obstructed Shortest Path from Visibility Graph" << endl << endl;
+	fileClear();
 
 	//for( double order = 1; order < 2; order += 0.5 )
 	{
@@ -70,20 +74,31 @@ void vgraph(double order)
 	int size = pow(10.0, order);
 	int row_col = sqrt(size);
 	int seg = row_col * row_col;
-//	int seg = 9; //Nusrat
+//	int seg = 2500; //Nusrat
+	int numOfPoints=seg*2;
 
 	
 	// Generate space for SEG number of lines	
 	Line * segs[seg];
-	Point * pointList[seg*2];
+	Point * pointList[numOfPoints];
 
 	// Track what index we are on
 	
 
 	initializeLineSegments(row_col,segs);
-	initializePoints(row_col,segs,pointList);
+	initializePoints(seg,segs,pointList);
 	
-	int numOfPoints=seg*2;
+	//Draw Points
+	for(int i=0;i<numOfPoints;i++){
+		char result[100];   // array to hold the result.
+
+		itoa(pointList[i]->id,result,10); //itoa(int num,char * buffer,10)
+
+		if(visual)
+			img.draw_text(pointList[i]->x-2, pointList[i]->y+7,result,WHITE);
+
+	}
+
 
 	// Reusable pointer locations
 	Line * l;
@@ -418,7 +433,7 @@ void vgraph(double order)
 	printVisibilityOfPoints(seg*2,pointList);
 
 	//Calculating Shortest Path from source to destination
-	initiateDijkstra(numOfPoints,numOfEdges,false,0,8);
+	initiateDijkstra(numOfPoints,numOfEdges,false,0,17);
 	int *shortestPath = getShortestPath();
 	int i=0;
 	//Print the Shortest Path
@@ -545,8 +560,8 @@ void initializeLineSegments(int row_col,Line *segs[]){
 	}
 
 
-		//Nusrat
-/*		segs[0] = new Line(40,140,240,40); // 0 first
+/*		//Nusrat
+		segs[0] = new Line(40,140,240,40); // 0 first
 		segs[1] = new  Line(80,500,160,200); // 1 second
 		segs[2] = new   Line(80,500,100,300); // 2 third, later
 		segs[3] = new  Line(100,300,160,200) ;// 3 far righ
@@ -555,7 +570,9 @@ void initializeLineSegments(int row_col,Line *segs[]){
 		segs[6] = new   Line(560,200,480,150); // 2 third, later
 		segs[7] = new  Line(480,150,520,50) ;// 3 far righ
 		segs[8] = new  Line(520,50,400,100) ;// 3 far righ
-*/
+		*/
+
+//	getLines(segs);
 
 }
 
@@ -569,6 +586,26 @@ void fileWrite(Point *a,Point *b){
 	fprintf(fp, " %d" , b->id);
 	fprintf(fp, " %f" , dist);
 	fprintf(fp, "\n");
+	fclose(fp);
+}
+
+int getLines(Line *segs[]){
+
+	FILE *input = fopen("input.txt", "r+");
+	double x1,y1,x2,y2;
+	int i=0;
+	while(!feof(input)){
+	     fscanf(input, "%lf %lf %lf %lf", &x1, &y1, &x2, &y2); // Read the points
+	     segs[i]=new Line(x1,y1,x2,y2);
+	     i++;
+	 }
+	fclose(input);
+	return i;
+}
+void fileClear(){
+
+	FILE *fp;
+	fp=fopen("test.txt", "w");
 	fclose(fp);
 
 }

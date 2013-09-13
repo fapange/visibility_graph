@@ -7,9 +7,8 @@
 
 #include "PointHandler.h"
 
-void initializePoints(int row_col,Line *segs[],Point *pointList[]){
+void initializePoints(int index,Line *segs[],Point *pointList[]){
 
-	int index=row_col*row_col; //Nusrat
 		for(int i=0;i<index;i++){
 				segs[i]->print();
 				pointList[2*i]=segs[i]->b;
