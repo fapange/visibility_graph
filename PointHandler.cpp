@@ -20,6 +20,14 @@ void initializePoints(int index,Line *segs[],Point *pointList[]){
 				pointList[i]->print();
 		}*/
 }
+
+void createSourceAndDestinationPoint(int index,Point *pointList[],double s_x1,double s_y1,double d_x2,double d_y2){
+	Point * source = new Point(s_x1,s_y1);
+	Point * destination = new Point(d_x2,d_y2);
+
+	pointList[index-2]=source;
+	pointList[index-1]=destination;
+}
 void printVisibilityOfPoints(int numOfPoints,Point *pointList[]){
 
 	for(int i=0;i<numOfPoints;i++){

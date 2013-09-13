@@ -32,13 +32,14 @@ int numOfEdges=0;
 void vgraph(double order);
 double vectorsAngle( double x, double y, double basex, double basey);
 double distance( Point * a, Point * b );
-void initializeLineSegments(int row_col,Line *segs[]);
+int initializeLineSegments(int row_col,Line *segs[]);
 void initializePoints(int row_col,Line *segs[],Point *pointList[]);
 void printVisibilityOfPoints(int numOfPoints,Point *pointList[]);
 Point * searchPoint(int numOfPoints,Point *pointList[],Point* p );
 void fileClear();
 void fileWrite(Point *a,Point *b);
 int getLines(Line *segs[]);
+void initializeSourceAndDest(int index,Line *segs[],double s_x1,double s_y1,double d_x2,double d_y2);
 //-------------------------------------------------------------------------------
 //  Main procedure
 //-------------------------------------------------------------------------------
@@ -68,12 +69,13 @@ void vgraph(double order)
 	bool live = true;
 
 	CImg<unsigned char> img(screen_size,screen_size,1,3,20);
-	CImgDisplay disp(img, "Visibility Graph");      // Display the modified image on the screen
+	CImgDisplay disp(img, "Obstacle Shortest Path Using Visibility Graph");      // Display the modified image on the screen
 	
 	// Line segments:	
 	int size = pow(10.0, order);
 	int row_col = sqrt(size);
 	int seg = row_col * row_col;
+	seg +=2;//Extra two for source and dest
 //	int seg = 2500; //Nusrat
 	int numOfPoints=seg*2;
 
@@ -85,19 +87,10 @@ void vgraph(double order)
 	// Track what index we are on
 	
 
-	initializeLineSegments(row_col,segs);
+	int idx = initializeLineSegments(row_col,segs);
+//	initializeSourceAndDest(idx,segs,5.0,250.0,760.0,700.0);
+	initializeSourceAndDest(idx,segs,5.0,250.0,312.6 , 700.40);
 	initializePoints(seg,segs,pointList);
-	
-	//Draw Points
-	for(int i=0;i<numOfPoints;i++){
-		char result[100];   // array to hold the result.
-
-		itoa(pointList[i]->id,result,10); //itoa(int num,char * buffer,10)
-
-		if(visual)
-			img.draw_text(pointList[i]->x-2, pointList[i]->y+7,result,WHITE);
-
-	}
 
 
 	// Reusable pointer locations
@@ -110,7 +103,7 @@ void vgraph(double order)
 	bool isPointA;
 		
 	// Visit each vertex once and perform the visibility algorithm
-   	for(int outer = 0; outer < 2*seg; ++outer)
+   	for(int outer = 0; outer < numOfPoints; ++outer)
 	{
 		++atomic;
 		atomic_space = 0;
@@ -145,8 +138,8 @@ void vgraph(double order)
 		
 		// Draw sweeper:
 		//img.draw_line( center->x, center->y, center->x+200, center->y, RED);
-		if(visual)
-			img.draw_circle( center->x, center->y, 6, RED);
+		//if(visual) Nusrat
+			//img.draw_circle( center->x, center->y, 6, RED);
 
 		/*cout << "LINE ID " << center_id << " ";
 		  if(isPointA)
@@ -423,6 +416,18 @@ void vgraph(double order)
 			fileWrite(start,goal);
 			numOfEdges++;
 		}
+
+		//Draw Points
+			for(int i=0;i<numOfPoints;i++){
+				char result[100];   // array to hold the result.
+
+				itoa(pointList[i]->id,result,10); //itoa(int num,char * buffer,10)
+
+				if(visual)
+					img.draw_text(pointList[i]->x-2, pointList[i]->y+7,result,WHITE);
+
+			}
+
 		disp.display(img);
 	
 
@@ -433,7 +438,8 @@ void vgraph(double order)
 	printVisibilityOfPoints(seg*2,pointList);
 
 	//Calculating Shortest Path from source to destination
-	initiateDijkstra(numOfPoints,numOfEdges,false,0,17);
+	//initiateDijkstra(numOfPoints,numOfEdges,false,0,17);
+	initiateDijkstra(numOfPoints,numOfEdges,false,numOfPoints-3,numOfPoints-1);
 	int *shortestPath = getShortestPath();
 	int i=0;
 	//Print the Shortest Path
@@ -446,8 +452,8 @@ void vgraph(double order)
 			goal = getPointById(pointList,shortestPath[i+1]);
 			// Visualize:
 			if(visual){
-				img.draw_circle(start->x, start->y,8,GREEN);
-				img.draw_circle(goal->x, goal->y,8,GREEN);
+				img.draw_circle(start->x, start->y,5,GREEN);
+				img.draw_circle(goal->x, goal->y,5,GREEN);
 				img.draw_line(start->x, start->y, goal->x, goal->y, GREEN);
 
 			}
@@ -455,12 +461,12 @@ void vgraph(double order)
 		else
 			if(visual){
 				goal= getPointById(pointList,shortestPath[i]);
-				img.draw_text(goal->x, goal->y+3,"Dest",GREEN);
+				img.draw_text(goal->x-5, goal->y+15,"Dest",GREEN);
 			}
 
 		if(i==0){
 			if(visual)
-				img.draw_text(start->x, start->y+3,"Source",GREEN);
+				img.draw_text(start->x-5, start->y+15,"Source",GREEN);
 		}
 
 		i++;
@@ -520,7 +526,7 @@ double vectorsAngle( double x, double y, double basex, double basey)
 	return result;
 }
 
-void initializeLineSegments(int row_col,Line *segs[]){
+int initializeLineSegments(int row_col,Line *segs[]){
 
 	int index = 0;
 	// Coordinates:
@@ -574,6 +580,16 @@ void initializeLineSegments(int row_col,Line *segs[]){
 
 //	getLines(segs);
 
+	return index;
+
+}
+/**
+ *	The source and destination Point will be treated as very tiny line with length .001
+ *  */
+
+void initializeSourceAndDest(int index,Line *segs[],double s_x1,double s_y1,double d_x2,double d_y2){
+	segs[index] = new Line(s_x1,s_y1,s_x1+.00001,s_y1+.00001);
+	segs[index+1] = new Line(d_x2,d_y2,d_x2+.00001,d_y2+.00001);
 }
 
 
