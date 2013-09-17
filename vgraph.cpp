@@ -51,7 +51,7 @@ int main()
 
 	//for( double order = 1; order < 2; order += 0.5 )
 	{
-		vgraph(1.5);
+		vgraph(1);
 	}
 
 
@@ -74,13 +74,12 @@ void vgraph(double order)
 	CImgDisplay disp(img, "Obstacle Shortest Path Using Visibility Graph");      // Display the modified image on the screen
 	
 	// Line segments:
-		int size = pow(10.0, order);
+		int size = pow(4.0, order);
 		int row_col = sqrt(size);
 		int seg = row_col * row_col;
 	//	int seg = 1000; //Nusrat
 		seg +=2;//Extra two for source and dest
 		int numOfPoints=seg*2;
-
 
 		// Generate space for SEG number of lines
 		Line * segs[seg];
@@ -145,12 +144,12 @@ void vgraph(double order)
 			//if(visual) Nusrat
 				//img.draw_circle( center->x, center->y, 6, RED);
 
-			/*cout << "LINE ID " << center_id << " ";
+			cout << "LINE ID " << center_id << " ";
 			  if(isPointA)
 			  cout << "A" << endl;
 			  else
 			  cout << "B" << endl;
-			*/
+
 
 
 
@@ -186,10 +185,13 @@ void vgraph(double order)
 					l->a->theta = vectorsAngle( l->a->x, l->a->y, center->x, center->y );
 
 					// Sort the verticies:
+					//Nusrat
+				//	if(!angleList.find(l->a))
 					angleList.add( l->a);
 
-	   		//		cout << "Added A for line " << i << " theta " << l->a->theta << endl;
-				//	cout << "POINT "; l->a->print(); cout << endl;
+
+	   				//cout << "Added A for line " << i << " theta " << l->a->theta << endl;
+					//cout << "POINT "; l->a->print(); cout << endl;
 				}
 
 				if( !(i == center_id && isPointA == false) ) // point is not line B
@@ -202,7 +204,7 @@ void vgraph(double order)
 
 					// Sort the verticies:
 					angleList.add( l->b);
-				//	cout << "Added B for line " << i << " theta " << l->b->theta << endl;
+					//cout << "Added B for line " << i << " theta " << l->b->theta << endl;
 
 					//cout << "POINT "; l->b->print(); cout << endl;
 				}
@@ -214,8 +216,8 @@ void vgraph(double order)
 			//img.save("result.png"); // save the image
 			//break;
 			// Test SkipList
-		//	cout << "Angle List - points ordered CC from base line";
-		//	angleList.printAll();
+			cout << "Angle List - points ordered Counter Clockwise from base line (" << center->x<< ","<<center->y<<") to ("<< center->x+200<<"," <<center->y<<") while visiting "<<pointList[outer]->id;
+			angleList.printAll();
 
 
 			// Initialize Edge List Of Lines -----------------------------------------------------
@@ -224,6 +226,7 @@ void vgraph(double order)
 				++atomic;
 
 				l = segs[i]; // get next line to check
+				cout << "Line's A: " << l->a->x <<"," <<l->a->y <<" Line's B : " <<l->b->x<<","<<l->b->y  << " Line's ID "<<l->id<<endl;
 
 				// check if the current line is connected to the center point
 				if( l->id == ((Line*)center->parentLine)->id )
@@ -262,8 +265,8 @@ void vgraph(double order)
 			if(live)
 				disp.display(img);
 
-			//cout << "Edge List:";
-			//edgeList.printAll();
+			cout << "Edge List after 1st foor loop :";
+			edgeList.printAll();
 
 	   		// Sweep --------------------------------------------------------------
 
@@ -277,15 +280,15 @@ void vgraph(double order)
 					total_atomic_space = atomic_space;
 
 
-				//cout << "\n\n\n --------------- STARTING NEW SWEEP ------------------ \n\n\n";
+				cout << "\n\n\n --------------- STARTING NEW SWEEP ------------------ \n\n\n";
 
-				//cout << "SWEEP VERTEX " << i << endl;
+				cout << "SWEEP VERTEX " << i<< endl;
 				//if( i > 0 )
 				//	break;
 
 				// take the first vertex in angular order
 				p = angleList.pop();
-				//cout << "Sweep at "; p->print();
+				cout << "Sweep at "; p->print();
 
 				// Update the center_line to the sweep location and update m,b
 				center_line->b = p;
@@ -320,9 +323,11 @@ void vgraph(double order)
 						//cout << "Drawing Line" << endl;
 
 						if(visual){
+
 							img.draw_line( center->x*scale, center->y*scale, p->x*scale, p->y*scale, BLUE ); //Vis
 							start=searchPoint(numOfPoints,pointList,p);
 							goal=searchPoint(numOfPoints,pointList,center);
+							cout <<"Adding Visible "<<start->id<<" to "<<goal->id<<" as for line "<<l->id<<endl;
 							start->addVisible(goal);
 							//Write in the file which will be read by Dijkstra Algorithm
 							fileWrite(start,goal);
@@ -335,7 +340,14 @@ void vgraph(double order)
 					// remove
 					//cout << "Value: " << l->value() << " " << l->id << endl;
 
+
 					edgeList.remove( l->value(), l->id );
+
+					//Nusrat
+					cout << "Edge List at 2nd for loop while checking : " <<l->id<<endl;
+					edgeList.printAll();
+
+
 
 					if(visual)
 						img.draw_line(l->a->x*scale, l->a->y*scale, l->b->x*scale, l->b->y*scale, WHITE);
@@ -350,6 +362,8 @@ void vgraph(double order)
 					l->dist = distance( p, center );
 
 					edgeList.add( l );
+					cout << "Edge List at 2nd for loop while checking :"<<l->id<<endl;
+					edgeList.printAll();
 
 					// check if its first in the edge list. if it is, its VISIBLE
 					if( edgeList.isRoot( l->id ) )
@@ -359,6 +373,7 @@ void vgraph(double order)
 							img.draw_line( center->x*scale, center->y*scale, p->x*scale, p->y*scale, BLUE ); //Vis
 							start=searchPoint(numOfPoints,pointList,p);
 							goal=searchPoint(numOfPoints,pointList,center);
+							cout <<"Adding Visible "<<start->id<<" to "<<goal->id<<" as for line "<<l->id<<endl;
 							start->addVisible(goal);
 							//Write in the file which will be read by Dijkstra Algorithm
 							fileWrite(start,goal);
@@ -402,6 +417,8 @@ void vgraph(double order)
 			//cout << outer << endl;
 		}
 
+	   	//Nusrat
+	   	char result[100];
 		if(visual)
 		{
 			// Redraw obstacle lines just for fun:
@@ -412,6 +429,10 @@ void vgraph(double order)
 				img.draw_line(l->a->x*scale, l->a->y*scale, l->b->x*scale, l->b->y*scale, WHITE);
 				img.draw_circle(l->a->x*scale, l->a->y*scale, 2, WHITE);
 				img.draw_circle(l->b->x*scale, l->b->y*scale, 2, WHITE);
+				//Printing Line id in image
+				itoa(l->id,result,10); //itoa(int num,char * buffer,10)
+				img.draw_text((l->a->x-3)*scale,  (l->a->y-15)*scale,result,WHITE);
+				img.draw_text((l->b->x-3)*scale,  (l->b->y-15)*scale,result,WHITE);
 
 				start=searchPoint(numOfPoints,pointList,l->a);
 				goal=searchPoint(numOfPoints,pointList,l->b);
@@ -423,7 +444,7 @@ void vgraph(double order)
 
 			//Draw Points
 				for(int i=0;i<numOfPoints;i++){
-					char result[100];   // array to hold the result.
+					  // array to hold the result.
 
 					itoa(pointList[i]->id,result,10); //itoa(int num,char * buffer,10)
 
@@ -502,6 +523,7 @@ void vgraph(double order)
 
 //-------------------------------------------------------------------------------
 //  Calculate Angle Btw 2 Vectors
+//Turning the points in to vector by x=basex-x and y = basey-y and then angle = arctan(y/x);
 //-------------------------------------------------------------------------------
 double vectorsAngle( double x, double y, double basex, double basey)
 {
@@ -594,8 +616,8 @@ int initializeLineSegments(int row_col,Line *segs[]){
  *  */
 
 void initializeSourceAndDest(int index,Line *segs[],double s_x1,double s_y1,double d_x2,double d_y2){
-	segs[index] = new Line(s_x1,s_y1,s_x1+.00001,s_y1+.00001);
-	segs[index+1] = new Line(d_x2,d_y2,d_x2+.00001,d_y2+.00001);
+	segs[index] = new Line(s_x1,s_y1,s_x1,s_y1);
+	segs[index+1] = new Line(d_x2,d_y2,d_x2,d_y2);
 }
 
 

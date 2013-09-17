@@ -21,11 +21,24 @@ Line::Line(double x1, double y1, double x2, double y2)
 		b = new Point(x2, y2);
 	}
 	else
+	if(x1==x2){
+		x2=x2+.02;
+		a = new Point(x1, y1);
+		b = new Point(x2, y2);
+	}
+	else
+	if(y1==y2){
+		y2=y2+.02;
+		a = new Point(x1, y1);
+		b = new Point(x2, y2);
+	}
+	else
 	{
 		b = new Point(x1, y1);
 		a = new Point(x2, y2);
 	}
 	
+
 	// Change ID
 	static int id_counter = 0;
 	id = id_counter++;
@@ -65,7 +78,7 @@ double Line::value()
 		//cout << "Recalculaing distance for line " << id << endl;
 		distance();
 	}
-
+	//cout << "Calculaing distance for line " << id << " distance is "<<dist<<endl;
 	return dist;
 }
 void Line::updateCalcs()
@@ -81,11 +94,11 @@ void Line::updateCalcs()
 		//		b->x = b->x + 1;
 		denom = 0.000000001; //(b->x - a->x);		
 	}
-	m = (b->y - a->y)/denom;
+	m = (b->y - a->y)/denom; // m=(y2-y1)/(x2-x1)
 	
 	//	cout << m << " M " << endl;
 	
-	y_intercept = a->y - m*a->x;
+	y_intercept = a->y - m*a->x; //y = mx+b => b = y-mx
 	//	cout << y_intercept << " m " << endl;
 }
 void Line::distance()
@@ -107,6 +120,8 @@ void Line::distance()
 
 void Line::center_intercept(double &xi, double &yi)
 {
+	//cout<<"Calculating intercept of "<<center_line->id <<" with "<<id<<endl;
 	xi = double( y_intercept - center_line->y_intercept ) / double( center_line->m - m );
 	yi = m*xi + y_intercept;
+	//cout << "The intercept is x: " << xi << " y: " << yi << endl;
 }

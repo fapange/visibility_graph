@@ -100,7 +100,8 @@ class skiplist{
 			root = createNode( 0, 0, data);
 			return;
 		}
-
+		cout<<root->data->id<<" root->data->value() "<<root->data->value()<<" -" <<data->id<<" data->value() "<<data->value();
+		cout<<endl;
 		if( root->data->value() > data->value() ) // new value goes before root
 		{
 			T temp_data = root->data;
@@ -404,11 +405,12 @@ class skiplist{
 		for(int l = root->level; l > 0; --l)
 		{
 			//cout << "Level " << l << " - ";
-			//i.data.print();
+			//i.data->print();
 			//cout << endl;
 			i = *(i.below);
 		}
-		//std::cout << "we are on level " << i.level << std::endl;
+		//std::cout << "we are on level " << i.level;
+		//std::cout << std::endl;
 
 		// Hack: update root 0 level with maxLevel count, because we don't update this
 		// when growing root level size
@@ -425,7 +427,8 @@ class skiplist{
 			{
 				std::cout << " | ";
 			}
-			std::cout << " " << i.data->value() << " - ";
+		//	std::cout << " " << i.data->value()*180/M_PI  << " - ";
+			std::cout << " " << i.data->value()  << " - ";
 			i.data->print();
 			
 			counter ++;
