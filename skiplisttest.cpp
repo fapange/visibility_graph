@@ -30,8 +30,11 @@ Retrieved from: http://en.literateprograms.org/Skip_list_(C)?oldid=18381
 #include <string.h>
 #define P 0.5
 #define MAX_LEVEL 6
+
+//template <typename T>
 struct sn {
     double value;
+    //T v;
     struct sn ** forward; /* pointer to array of pointers */
 };
 typedef struct sn SkipNode;
