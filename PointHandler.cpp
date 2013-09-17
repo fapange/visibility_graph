@@ -47,8 +47,14 @@ Point * searchPoint(int numOfPoints,Point *pointList[],Point* p ){
 	return NULL;
 }
 
-Point * getPointById(Point *pointList[],int id){
-	return pointList[id];
+Point * getPointById(Point *pointList[],int id,int numOfPoints){
+	for(int i=0;i<numOfPoints;i++){
+		if(pointList[i]->id==id){
+			return pointList[i];
+		}
+
+	}
+	return NULL;
 }
 //-------------------------------------------------------------------------------
 //  Distance Btw 2 Points

@@ -470,11 +470,12 @@ void vgraph(double order)
 		//Print the Shortest Path
 		 printf("The Shortest Path is ");
 		while(shortestPath[i]!=-1){
-			printf("%d ", shortestPath[i]);
+			printf(" %d ", shortestPath[i]);
 
 			if(shortestPath[i+1]!=-1){
-				start = getPointById(pointList,shortestPath[i]);
-				goal = getPointById(pointList,shortestPath[i+1]);
+				start = getPointById(pointList,shortestPath[i],numOfPoints);
+				goal = getPointById(pointList,shortestPath[i+1],numOfPoints);
+				printf("\n start  %d goal %d\n",start->id,goal->id);
 				// Visualize:
 				if(visual){
 					img.draw_circle(start->x*scale, start->y*scale,5,GREEN);
@@ -485,7 +486,7 @@ void vgraph(double order)
 			}
 			else
 				if(visual){
-					goal= getPointById(pointList,shortestPath[i]);
+					goal= getPointById(pointList,shortestPath[i],numOfPoints);
 					img.draw_text((goal->x-5)*scale, (goal->y+15)*scale,"Dest",GREEN);
 				}
 
@@ -513,6 +514,8 @@ void vgraph(double order)
 		}
 	}
 	printf("\nTotal No of edges %d",numOfEdges);
+
+
 
 
 
