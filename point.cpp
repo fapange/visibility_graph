@@ -29,7 +29,7 @@ double Point::value()
 void Point::printVisible()
 {
 	for(int i=0;i<index;i++)
-	std::cout << "Point (" << x << "," << y << ") \t can see Point (" << visible[i]->x << "," << visible[i]->y<<")"  << std::endl;
+	std::cout << "Point " << id << " \t can see Point " << visible[i]->id  << std::endl;
 }
 void Point::addVisible(Point *p)
 {
@@ -37,4 +37,40 @@ void Point::addVisible(Point *p)
 	//std::cout << "At " << x <<"," << y <<"   for  " << p->x <<","<<p->y <<" Index "<<index<<std::endl;
 	visible[index]=p;
 	index++;
+}
+/* This function will check whether that Point p is visible to t
+*/
+bool Point::isVisible(Point* p)
+{
+      // std::cout<<"Testing is visible "<<id<<" "<<p->id;
+       bool found=false;
+       for(int i=0;i<index;i++){
+              if(visible[i]!=NULL){
+                       {
+                               if(visible[i]->id == p->id){
+                                       found=true;
+                                       break;
+                       }
+               }
+
+               }
+       }
+      // std::cout<<" Found : "<<found<<std::endl;
+       return found;
+}
+
+void Point::removeVisible(Point *p)
+{
+       int i;
+
+       for(i=0;i<index;i++){
+                       if(visible[i]!=NULL){
+                               if(visible[i]->id == p->id){
+                                       visible[i]=NULL;
+                                       std::cout << "Point " << id <<" \t removed "<<visible[i]->id<<std::endl;
+                                       break;
+                               }
+
+                       }
+               }
 }

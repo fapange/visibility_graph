@@ -11,10 +11,12 @@
 #include <list>
 #include "Dijkstra.h"
 #include "PointHandler.h"
+#include <time.h>
 
 using namespace cimg_library;
 using namespace std;
 
+clock_t startTime;
 const unsigned char WHITE[] = { 255, 255, 255 };
 const unsigned char GREY[] = { 100, 100, 100 };
 const unsigned char BLACK[] = { 0, 0, 0 };
@@ -48,6 +50,7 @@ int main()
 {
 	cout << endl << endl << "Obstructed Shortest Path from Visibility Graph" << endl << endl;
 	fileClear();
+	startTime = clock();
 
 	//for( double order = 1; order < 2; order += 0.5 )
 	{
@@ -419,6 +422,21 @@ void vgraph(double order)
 
 	   	//Nusrat
 	   	char result[100];
+		printVisibilityOfPoints(seg*2,pointList);
+	   	for(int i=0;i<numOfPoints;i++){
+	   			int in=pointList[i]->index;
+
+	   			for(int j=0;j<in;j++){
+
+	   				Point* pn=pointList[i]->visible[j];
+	   				if(! (pn->isVisible(pointList[i]))){
+	   						cout<<pointList[i]->id<<"'s vision contradicts with "<<pn->id<<endl;
+	   						pointList[i]->visible[j]=NULL;
+	   						img.draw_line( pointList[i]->x, pointList[i]->y, pn->x, pn->y, RED);
+
+	   				}
+	   			}
+	   		}
 		if(visual)
 		{
 			// Redraw obstacle lines just for fun:
@@ -460,7 +478,7 @@ void vgraph(double order)
 		}
 
 
-		printVisibilityOfPoints(seg*2,pointList);
+	//	printVisibilityOfPoints(seg*2,pointList);
 
 		//Calculating Shortest Path from source to destination
 		//initiateDijkstra(numOfPoints,numOfEdges,false,0,17);
@@ -473,8 +491,8 @@ void vgraph(double order)
 			printf("%d ", shortestPath[i]);
 
 			if(shortestPath[i+1]!=-1){
-				start = getPointById(pointList,shortestPath[i]);
-				goal = getPointById(pointList,shortestPath[i+1]);
+				start = getPointById(pointList,shortestPath[i],numOfPoints);
+				goal = getPointById(pointList,shortestPath[i+1],numOfPoints);
 				// Visualize:
 				if(visual){
 					img.draw_circle(start->x*scale, start->y*scale,5,GREEN);
@@ -485,7 +503,7 @@ void vgraph(double order)
 			}
 			else
 				if(visual){
-					goal= getPointById(pointList,shortestPath[i]);
+					goal= getPointById(pointList,shortestPath[i],numOfPoints);
 					img.draw_text((goal->x-5)*scale, (goal->y+15)*scale,"Dest",GREEN);
 				}
 
@@ -496,6 +514,7 @@ void vgraph(double order)
 
 			i++;
 		}
+
 
 
 	if(visual){
@@ -513,6 +532,10 @@ void vgraph(double order)
 		}
 	}
 	printf("\nTotal No of edges %d",numOfEdges);
+	 /* Code you want timed here */
+	    printf("Time elapsed: %f s\n", ((double)clock() - startTime) / CLOCKS_PER_SEC);
+
+
 
 
 

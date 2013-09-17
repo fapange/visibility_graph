@@ -21,8 +21,11 @@ class Point: public Geometry
 	virtual double value();
 	virtual void addVisible(Point *p);
 	virtual void printVisible();
+	bool isVisible(Point* p);
+	void removeVisible(Point *p);
 
 	Point * visible[100];
+
 };
 
 #endif
