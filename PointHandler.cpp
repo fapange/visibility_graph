@@ -33,6 +33,7 @@ void printVisibilityOfPoints(int numOfPoints,Point *pointList[]){
 	for(int i=0;i<numOfPoints;i++){
 		pointList[i]->print();
 		//pointList[i]->printVisible();
+		pointList[i]->printVisibilityCheckDone(numOfPoints);
 	}
 }
 

@@ -11,6 +11,7 @@
 #include <list>
 #include "Dijkstra.h"
 #include "PointHandler.h"
+#include <time.h>
 
 using namespace cimg_library;
 using namespace std;
@@ -44,10 +45,13 @@ void initializeSourceAndDest(int index,Line *segs[],double s_x1,double s_y1,doub
 //-------------------------------------------------------------------------------
 //  Main procedure
 //-------------------------------------------------------------------------------
+clock_t startTime;
+
 int main()
 {
 	cout << endl << endl << "Obstructed Shortest Path from Visibility Graph" << endl << endl;
 	fileClear();
+    startTime = clock();
 
 	//for( double order = 1; order < 2; order += 0.5 )
 	{
@@ -311,6 +315,9 @@ void vgraph(double order)
 				else if( l->visited  ) // remove it from edgeList
 				{
 					//cout << "remove" << endl;
+					start=searchPoint(numOfPoints,pointList,p);
+					goal=searchPoint(numOfPoints,pointList,center);
+					start->setVisibilityCheckDone(goal);
 
 					if( ! l->visitedStartPoint )
 					{
@@ -324,14 +331,32 @@ void vgraph(double order)
 
 						if(visual){
 
-							img.draw_line( center->x*scale, center->y*scale, p->x*scale, p->y*scale, BLUE ); //Vis
-							start=searchPoint(numOfPoints,pointList,p);
-							goal=searchPoint(numOfPoints,pointList,center);
-							cout <<"Adding Visible "<<start->id<<" to "<<goal->id<<" as for line "<<l->id<<endl;
-							start->addVisible(goal);
-							//Write in the file which will be read by Dijkstra Algorithm
-							fileWrite(start,goal);
-							numOfEdges++;
+							//This is added by Nusrat because some false visible point is added which is not bidirectional
+							if(goal->isVisibilityCheckDone(start)){
+								if(goal->isVisible(start)){
+									img.draw_line( center->x*scale, center->y*scale, p->x*scale, p->y*scale, BLUE ); //Vis
+									cout <<"Adding Visible "<<start->id<<" to "<<goal->id<<" as for line "<<l->id<<endl;
+									start->addVisible(goal);
+									//Write in the file which will be read by Dijkstra Algorithm
+									fileWrite(start,goal);
+									numOfEdges++;
+								}
+								else{
+									cout <<"Doing Nothing for "<<start->id<<" to "<<goal->id << endl;
+								}
+							}
+
+							//If this is first time comparison for the pair start and goal then add
+							else{
+								img.draw_line( center->x*scale, center->y*scale, p->x*scale, p->y*scale, BLUE ); //Vis
+								cout <<"Adding Visible "<<start->id<<" to "<<goal->id<<" as for line "<<l->id<<endl;
+								start->addVisible(goal);
+								//Write in the file which will be read by Dijkstra Algorithm
+								fileWrite(start,goal);
+								numOfEdges++;
+							}
+
+
 
 						}
 
@@ -354,6 +379,10 @@ void vgraph(double order)
 				}
 				else // add it to edge list
 				{
+					start=searchPoint(numOfPoints,pointList,p);
+					goal=searchPoint(numOfPoints,pointList,center);
+					start->setVisibilityCheckDone(goal);
+
 					//cout << "add" << endl;
 					l->visited = true; // mark it as having been visited somewhere
 					l->visitedStartPoint = true; // mark it as having found the first vertex
@@ -370,14 +399,34 @@ void vgraph(double order)
 					{
 						//cout << "Drawing Line" << endl;
 						if(visual){
-							img.draw_line( center->x*scale, center->y*scale, p->x*scale, p->y*scale, BLUE ); //Vis
-							start=searchPoint(numOfPoints,pointList,p);
-							goal=searchPoint(numOfPoints,pointList,center);
-							cout <<"Adding Visible "<<start->id<<" to "<<goal->id<<" as for line "<<l->id<<endl;
-							start->addVisible(goal);
-							//Write in the file which will be read by Dijkstra Algorithm
-							fileWrite(start,goal);
-							numOfEdges++;
+
+							//This is added by Nusrat because some false visible point is added which is not bidirectional
+							if(goal->isVisibilityCheckDone(start)){
+								if(goal->isVisible(start)){
+										img.draw_line( center->x*scale, center->y*scale, p->x*scale, p->y*scale, BLUE ); //Vis
+										cout <<"Adding Visible "<<start->id<<" to "<<goal->id<<" as for line "<<l->id<<endl;
+										start->addVisible(goal);
+										//Write in the file which will be read by Dijkstra Algorithm
+										fileWrite(start,goal);
+										numOfEdges++;
+								}
+								else{
+									//Visibility test already done but not visible so its a false hit do nothing
+									cout <<"Doing Nothing for "<<start->id<<" to "<<goal->id << endl;
+
+								}
+							}
+							//If this is first time comparison for the pair start and goal then add
+							else{
+								img.draw_line( center->x*scale, center->y*scale, p->x*scale, p->y*scale, BLUE ); //Vis
+								cout <<"Adding Visible "<<start->id<<" to "<<goal->id<<" as for line "<<l->id<<endl;
+								start->addVisible(goal);
+								//Write in the file which will be read by Dijkstra Algorithm
+								fileWrite(start,goal);
+								numOfEdges++;
+							}
+
+
 						}
 
 					}
@@ -437,6 +486,7 @@ void vgraph(double order)
 				start=searchPoint(numOfPoints,pointList,l->a);
 				goal=searchPoint(numOfPoints,pointList,l->b);
 				start->addVisible(goal);
+				start->setVisibilityCheckDone(goal);
 				//Write in the file which will be read by Dijkstra Algorithm
 				fileWrite(start,goal);
 				numOfEdges++;
@@ -475,7 +525,7 @@ void vgraph(double order)
 			if(shortestPath[i+1]!=-1){
 				start = getPointById(pointList,shortestPath[i],numOfPoints);
 				goal = getPointById(pointList,shortestPath[i+1],numOfPoints);
-				printf("\n start  %d goal %d\n",start->id,goal->id);
+				//printf("\n start  %d goal %d\n",start->id,goal->id);
 				// Visualize:
 				if(visual){
 					img.draw_circle(start->x*scale, start->y*scale,5,GREEN);
@@ -514,6 +564,9 @@ void vgraph(double order)
 		}
 	}
 	printf("\nTotal No of edges %d",numOfEdges);
+
+    /* Code you want timed here */
+    printf("Time elapsed: %f s\n", ((double)clock() - startTime) / CLOCKS_PER_SEC);
 
 
 

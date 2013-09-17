@@ -20,9 +20,15 @@ class Point: public Geometry
 	virtual void print();
 	virtual double value();
 	virtual void addVisible(Point *p);
+	bool isVisible(Point* p);
+	void removeVisible(Point *p);
 	virtual void printVisible();
+	virtual void setVisibilityCheckDone(Point* p);
+	virtual bool isVisibilityCheckDone(Point* p);
+	virtual void printVisibilityCheckDone(int numOfPoints);
 
 	Point * visible[100];
+	bool visibilityCheckDone[100];
 };
 
 #endif
