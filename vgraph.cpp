@@ -54,7 +54,7 @@ int main()
 
 	//for( double order = 1; order < 2; order += 0.5 )
 	{
-		vgraph(1);
+		vgraph(1.5);
 	}
 
 
@@ -152,9 +152,9 @@ void vgraph(double order)
 			  cout << "A" << endl;
 			  else
 			  cout << "B" << endl;
+		*/
 
-	*/
-
+			//cout<<"Center ID " << center->id << endl;
 
 			// Datastructures:
 			skiplist <Point*> angleList;
@@ -229,7 +229,8 @@ void vgraph(double order)
 				++atomic;
 
 				l = segs[i]; // get next line to check
-		//		cout << "Line's A: " << l->a->x <<"," <<l->a->y <<" Line's B : " <<l->b->x<<","<<l->b->y  << " Line's ID "<<l->id<<endl;
+				cout << " Line's ID "<<l->id<< " Line's A: " << l->a->id <<" Line's B : " <<l->b->id <<endl;
+
 
 				// check if the current line is connected to the center point
 				if( l->id == ((Line*)center->parentLine)->id )
@@ -283,9 +284,9 @@ void vgraph(double order)
 					total_atomic_space = atomic_space;
 
 
-				cout << "\n\n\n --------------- STARTING NEW SWEEP ------------------ \n\n\n";
+				cout << "\n--------------- STARTING NEW SWEEP ------------------ \n\n\n";
 
-				cout << "SWEEP VERTEX " << i<< endl;
+				//cout << "SWEEP VERTEX " << i<< endl;
 				//if( i > 0 )
 				//	break;
 
@@ -328,8 +329,8 @@ void vgraph(double order)
 						if(visual){
 
 							img.draw_line( center->x*scale, center->y*scale, p->x*scale, p->y*scale, BLUE ); //Vis
-							start=searchPoint(numOfPoints,pointList,p);
-							goal=searchPoint(numOfPoints,pointList,center);
+							start=searchPoint(numOfPoints,pointList,center);
+							goal=searchPoint(numOfPoints,pointList,p);
 							cout <<"Adding Visible "<<start->id<<" to "<<goal->id<<" as for line "<<l->id<<endl;
 							start->addVisible(goal);
 							//Write in the file which will be read by Dijkstra Algorithm
@@ -347,7 +348,7 @@ void vgraph(double order)
 					edgeList.remove( l->value(), l->id );
 
 					//Nusrat
-					cout << "Edge List at 2nd for loop while checking : " <<l->id<<endl;
+					cout << "Edge List at 2nd for loop while checking a visited Line: " <<l->id<<"for point "<<p->id<<endl;
 					edgeList.printAll();
 
 
@@ -365,8 +366,6 @@ void vgraph(double order)
 					l->dist = distance( p, center );
 
 					edgeList.add( l );
-					cout << "Edge List at 2nd for loop while checking :"<<l->id<<endl;
-					edgeList.printAll();
 
 					// check if its first in the edge list. if it is, its VISIBLE
 					if( edgeList.isRoot( l->id ) )
@@ -374,9 +373,12 @@ void vgraph(double order)
 						//cout << "Drawing Line" << endl;
 						if(visual){
 							img.draw_line( center->x*scale, center->y*scale, p->x*scale, p->y*scale, BLUE ); //Vis
-							start=searchPoint(numOfPoints,pointList,p);
-							goal=searchPoint(numOfPoints,pointList,center);
+							//cout << "center id "<<pointList[outer]->id<<" goal id " << p->id<< endl;
+							start=searchPoint(numOfPoints,pointList,center);
+							goal=searchPoint(numOfPoints,pointList,p);
 							cout <<"Adding Visible "<<start->id<<" to "<<goal->id<<" as for line "<<l->id<<endl;
+							cout << "center id ("<<pointList[outer]->x<<","<<pointList[outer]->y<<") goal id (" << p->x<<","<<p->y<<")"<< endl;
+							cout <<"start ("<<start->x<<","<<start->y<<") goal ("<<goal->x<<","<<goal->y<<") as for line "<<l->id<<endl;
 							start->addVisible(goal);
 							//Write in the file which will be read by Dijkstra Algorithm
 							fileWrite(start,goal);
@@ -384,6 +386,9 @@ void vgraph(double order)
 						}
 
 					}
+
+					cout << "Edge List at 2nd for loop while checking a un visited Line : "<<l->id<<" for point "<<p->id<<endl;
+					edgeList.printAll();
 
 					if(visual)
 						img.draw_line(l->a->x*scale, l->a->y*scale, l->b->x*scale, l->b->y*scale, GREEN);
@@ -422,8 +427,8 @@ void vgraph(double order)
 
 	   	//Nusrat
 	   	char result[100];
-		printVisibilityOfPoints(seg*2,pointList);
-	   	for(int i=0;i<numOfPoints;i++){
+
+	  /* 	for(int i=0;i<numOfPoints;i++){
 	   			int in=pointList[i]->index;
 
 	   			for(int j=0;j<in;j++){
@@ -439,7 +444,7 @@ void vgraph(double order)
 	   		}
 
 	   	printVisibilityOfPoints(seg*2,pointList);
-		
+		*/
 		if(visual)
 		{
 			// Redraw obstacle lines just for fun:
@@ -534,7 +539,7 @@ void vgraph(double order)
 			disp.wait();
 		}
 	}
-	printf("\nTotal No of edges %d",numOfEdges);
+	printf("\nTotal No of edges %d\n",numOfEdges);
 	 /* Code you want timed here */
 	    printf("Time elapsed: %f s\n", ((double)clock() - startTime) / CLOCKS_PER_SEC);
 
@@ -642,8 +647,8 @@ int initializeLineSegments(int row_col,Line *segs[]){
  *  */
 
 void initializeSourceAndDest(int index,Line *segs[],double s_x1,double s_y1,double d_x2,double d_y2){
-	segs[index] = new Line(s_x1,s_y1,s_x1,s_y1);
-	segs[index+1] = new Line(d_x2,d_y2,d_x2,d_y2);
+	segs[index] = new Line(s_x1,s_y1,s_x1+.02,s_y1);
+	segs[index+1] = new Line(d_x2,d_y2,d_x2,d_y2+.02);
 }
 
 
