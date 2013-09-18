@@ -31,7 +31,7 @@ void createSourceAndDestinationPoint(int index,Point *pointList[],double s_x1,do
 void printVisibilityOfPoints(int numOfPoints,Point *pointList[]){
 
 	for(int i=0;i<numOfPoints;i++){
-		pointList[i]->print();
+		//pointList[i]->print();
 		//pointList[i]->printVisible();
 	}
 }

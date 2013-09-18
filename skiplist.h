@@ -100,7 +100,7 @@ class skiplist{
 			root = createNode( 0, 0, data);
 			return;
 		}
-		cout<<root->data->id<<" root->data->value() "<<root->data->value()<<" -" <<data->id<<" data->value() "<<data->value();
+		//cout<<root->data->id<<" root->data->value(): "<<root->data->value()<<" | " <<data->id<<" data->value(): "<<data->value();
 		cout<<endl;
 		if( root->data->value() > data->value() ) // new value goes before root
 		{

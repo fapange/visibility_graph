@@ -20,7 +20,7 @@ Line::Line(double x1, double y1, double x2, double y2)
 		a = new Point(x1, y1);
 		b = new Point(x2, y2);
 	}
-	else
+	/*else
 	if(x1==x2){
 		x2=x2+.02;
 		a = new Point(x1, y1);
@@ -32,12 +32,13 @@ Line::Line(double x1, double y1, double x2, double y2)
 		a = new Point(x1, y1);
 		b = new Point(x2, y2);
 	}
+	*/
 	else
 	{
 		b = new Point(x1, y1);
 		a = new Point(x2, y2);
 	}
-	
+
 
 	// Change ID
 	static int id_counter = 0;
@@ -92,7 +93,7 @@ void Line::updateCalcs()
 
 		// Perturb:
 		//		b->x = b->x + 1;
-		denom = 0.000000001; //(b->x - a->x);		
+		denom = 0.000000001; //(b->x - a->x);	 //vertical
 	}
 	m = (b->y - a->y)/denom; // m=(y2-y1)/(x2-x1)
 	
