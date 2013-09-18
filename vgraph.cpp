@@ -147,13 +147,13 @@ void vgraph(double order)
 			//if(visual) Nusrat
 				//img.draw_circle( center->x, center->y, 6, RED);
 
-			cout << "LINE ID " << center_id << " ";
+		/*	cout << "LINE ID " << center_id << " ";
 			  if(isPointA)
 			  cout << "A" << endl;
 			  else
 			  cout << "B" << endl;
 
-
+	*/
 
 
 			// Datastructures:
@@ -220,7 +220,7 @@ void vgraph(double order)
 			//break;
 			// Test SkipList
 			cout << "Angle List - points ordered Counter Clockwise from base line (" << center->x<< ","<<center->y<<") to ("<< center->x+200<<"," <<center->y<<") while visiting "<<pointList[outer]->id;
-			angleList.printAll();
+		//	angleList.printAll();
 
 
 			// Initialize Edge List Of Lines -----------------------------------------------------
@@ -229,7 +229,7 @@ void vgraph(double order)
 				++atomic;
 
 				l = segs[i]; // get next line to check
-				cout << "Line's A: " << l->a->x <<"," <<l->a->y <<" Line's B : " <<l->b->x<<","<<l->b->y  << " Line's ID "<<l->id<<endl;
+		//		cout << "Line's A: " << l->a->x <<"," <<l->a->y <<" Line's B : " <<l->b->x<<","<<l->b->y  << " Line's ID "<<l->id<<endl;
 
 				// check if the current line is connected to the center point
 				if( l->id == ((Line*)center->parentLine)->id )
