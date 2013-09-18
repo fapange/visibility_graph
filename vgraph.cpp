@@ -437,6 +437,9 @@ void vgraph(double order)
 	   				}
 	   			}
 	   		}
+
+	   	printVisibilityOfPoints(seg*2,pointList);
+		
 		if(visual)
 		{
 			// Redraw obstacle lines just for fun:

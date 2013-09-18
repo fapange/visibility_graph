@@ -32,7 +32,7 @@ void printVisibilityOfPoints(int numOfPoints,Point *pointList[]){
 
 	for(int i=0;i<numOfPoints;i++){
 		pointList[i]->print();
-		pointList[i]->printVisible();
+		//pointList[i]->printVisible();
 	}
 }
 
@@ -49,8 +49,8 @@ Point * searchPoint(int numOfPoints,Point *pointList[],Point* p ){
 
 Point * getPointById(Point *pointList[],int id,int numOfPoints){
 	for(int i=0;i<numOfPoints;i++){
-if(pointList[i]->id==id){
-return pointList[i];
+			if(pointList[i]->id==id){
+					return pointList[i];
 }
 
 }

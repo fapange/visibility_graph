@@ -28,8 +28,11 @@ double Point::value()
 }
 void Point::printVisible()
 {
-	for(int i=0;i<index;i++)
-	std::cout << "Point " << id << " \t can see Point " << visible[i]->id  << std::endl;
+	for(int i=0;i<index;i++){
+		if(visible[i]!=NULL){
+				std::cout << "Point " << id << " \t can see Point " << visible[i]->id  << std::endl;
+		}
+	}
 }
 void Point::addVisible(Point *p)
 {
