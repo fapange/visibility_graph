@@ -18,8 +18,10 @@ int verticesNum;
 int edgesNum;
 vector< vector< pair<int, double> > > comparisionMatrix;
 vector<double> pathWeight;
-int *prev;
-int *smallestPath;
+//int *prev;
+//int *smallestPath;
+int prev[];
+int smallestPath[];
 
 void printPath(int dest);
 

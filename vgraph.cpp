@@ -12,6 +12,7 @@
 #include "Dijkstra.h"
 #include "PointHandler.h"
 #include <time.h>
+//#include "math.h"
 
 using namespace cimg_library;
 using namespace std;
@@ -78,7 +79,7 @@ void vgraph(double order)
 	
 	// Line segments:
 		int size = pow(4.0, order);
-		int row_col = sqrt(size);
+		int row_col = sqrt((double)size);
 		int seg = row_col * row_col;
 	//	int seg = 1000; //Nusrat
 		seg +=2;//Extra two for source and dest
